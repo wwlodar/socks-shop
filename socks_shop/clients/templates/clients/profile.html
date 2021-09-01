@@ -1,0 +1,10 @@
+{% extends "store/base.html" %}
+{% block content %}
+    <div class="border-top pt-3">
+        <small class="text-muted">
+          <h1>{{ user.username }}</h1>
+          <a>{{ user.email}} </a>
+          <a>{{ date_joined|date:"d-M-Y" }}</a>
+        </small>
+    </div>
+{% endblock content %}

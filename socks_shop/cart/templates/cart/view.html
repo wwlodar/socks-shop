@@ -1,0 +1,15 @@
+{% extends "store/base.html" %}
+{% block content %}
+<div>
+	<h2>Your cart: </h2>
+{% for item in cart %}
+{% for prod in item.products.all %}
+	<div>
+	<img src="{{prod.image.url}}" height="150">
+	{{prod.name}}
+	Price: {{prod.price }} </div>
+{% endfor %}
+	<div>Total price: {{ amount }} </div>
+{% endfor %}
+</div>
+{% endblock content %}

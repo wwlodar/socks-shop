@@ -15,8 +15,21 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.contrib.auth import views as auth_views
+from clients import views as client_views
+from cart import views as cart_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
+    path('cart/', cart_views.view, name='cart_view'),
+    path('login/', auth_views.LoginView.as_view(template_name='clients/login.html'), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(template_name='clients/logout.html'), name='logout'),
+    path('register/', client_views.register, name="register"),
+    path('profile/', client_views.client_profile, name="profile")
 ]
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

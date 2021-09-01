@@ -1,0 +1,16 @@
+{% extends "store/base.html" %}
+{% block content %}
+<h2>{{ product.name }}</h2>
+<div>
+	<div class="row">
+	<div class="col-6">
+		<img src="{{product.image.url}}">
+	</div>
+	<div class="col-6">
+		<div>{{product.description}}</div>
+		<div>Price: {{product.price}}</div>
+		<btn class="btn btn-info" href="#">Add to cart </btn>
+	</div>
+	</div>
+</div>
+{% endblock content %}
