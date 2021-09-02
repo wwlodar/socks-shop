@@ -28,7 +28,9 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='clients/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='clients/logout.html'), name='logout'),
     path('register/', client_views.register, name="register"),
-    path('profile/', client_views.client_profile, name="profile")
+    path('profile/', client_views.client_profile, name="profile"),
+    path('cart/add/<int:pk>/', cart_views.add_to_cart, name="add_to_cart"),
+    path('cart/delete/<int:pk>/', cart_views.delete_from_cart, name="delete_from_cart")
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

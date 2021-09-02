@@ -10,8 +10,7 @@ class HomepagePromotional(models.Model):
 class Product(models.Model):
   name = models.CharField(max_length=60)
   price = models.IntegerField(default=0)
-  # quantity = models.IntegerField(null=True)
-  # available
+  quantity = models.IntegerField(null=True)
   description = models.CharField(max_length=250, default='', blank=True, null= True)
   image = models.ImageField(upload_to='products')
 

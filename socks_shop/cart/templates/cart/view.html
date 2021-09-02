@@ -1,15 +1,55 @@
 {% extends "store/base.html" %}
 {% block content %}
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
+    {% endfor %}
+</ul>
+{% endif %}
 <div>
 	<h2>Your cart: </h2>
+	<table class="table">
+		<thead>
+		<th></th>
+		<th>Item</th>
+		<th>Quantity</th>
+		<th>Price</th>
+		<th>Do you want to delete?</th>
+		</thead>
+		<tfoot>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td><button class="btn btn-secondary">Delete all items</button></td>
+		</tr>
+		<tr>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td></td>
+			<td>Total price: {{ amount }} </td>
+		</tr>
+		</tfoot>
 {% for item in cart %}
 {% for prod in item.products.all %}
 	<div>
-	<img src="{{prod.image.url}}" height="150">
-	{{prod.name}}
-	Price: {{prod.price }} </div>
+		<tr><td><img src="{{prod.product.image.url}}" height="150"></td>
+		<td>{{prod.product.name}}</td>
+		<td>Quantity: {{ prod.quantity }}</td>
+		<td>Price: {{ prod.product.price }} </td>
+		<td>
+		<form method="get" action="{% url 'delete_from_cart' pk=prod.pk %}">
+			<input name="quantity_delete" type="number" min="1" max={{prod.quantity}}>
+			<input type="submit" value="Delete from cart">
+		</form>
+		</td>
+		</tr>
+	</div>
 {% endfor %}
-	<div>Total price: {{ amount }} </div>
 {% endfor %}
+	</table>
 </div>
 {% endblock content %}

@@ -5,13 +5,16 @@
 <div>
 	<div class="row">
 	<div class="col-6">
-		<img src="{{item.image.url}}">
+		<a href="{% url 'product_detail' pk=item.pk %}"><img src="{{item.image.url}}"></a>
 	</div>
 	<div class="col-6">
-		<div>{{item.name}}</div>
+		<a href="{% url 'product_detail' pk=item.pk %}"><h4>{{item.name}}</h4></a>
 		<div>{{item.description}}</div>
 		<div>Price: {{item.price}}</div>
-		<btn class="btn btn-info" href="#">Add to cart </btn>
+		<form method="get" action="{% url 'add_to_cart' pk=item.pk %}">
+			<input name="quantity" type="number" min="1" max={{item.quantity}}>
+			<input type="submit" value="Add to cart" class="btn btn-info">
+		</form>
 	</div>
 	</div>
 </div>

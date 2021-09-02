@@ -7,9 +7,20 @@
 		<img src="{{product.image.url}}">
 	</div>
 	<div class="col-6">
+		{% if messages %}
+			<ul class="messages">
+				{% for message in messages %}
+					<li {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+				{% endfor %}
+			</ul>
+{% endif %}
 		<div>{{product.description}}</div>
 		<div>Price: {{product.price}}</div>
-		<btn class="btn btn-info" href="#">Add to cart </btn>
+		<form method="get" action="{% url 'add_to_cart' pk=product.pk %}">
+			<input name="quantity" type="number" min="1" max={{product.quantity}}>
+			<input type="submit" value="Add to cart" class="btn btn-info">
+		</form>
+
 	</div>
 	</div>
 </div>
