@@ -8,6 +8,7 @@
 </ul>
 {% endif %}
 <div>
+	{% if cart %}
 	<h2>Your cart: </h2>
 	<table class="table">
 		<thead>
@@ -23,15 +24,18 @@
 			<td></td>
 			<td></td>
 			<td></td>
-			<td><button class="btn btn-secondary">Delete all items</button></td>
+			<td>
+				<a href="{% url 'delete_all_from_cart' %}"><button class="btn btn-secondary">Delete all items</button></a></td>
 		</tr>
 		<tr>
 			<td></td>
 			<td></td>
 			<td></td>
 			<td></td>
-			<td>Total price: {{ amount }} </td>
-		</tr>
+			<td>
+				{% if amount  %}
+					Total price: {{ amount }} </td>
+				{% endif %}</tr>
 		</tfoot>
 {% for item in cart %}
 {% for prod in item.products.all %}
@@ -42,7 +46,7 @@
 		<td>Price: {{ prod.product.price }} </td>
 		<td>
 		<form method="get" action="{% url 'delete_from_cart' pk=prod.pk %}">
-			<input name="quantity_delete" type="number" min="1" max={{prod.quantity}}>
+			<input name="quantity_delete" type="number" min="1" max={{prod.quantity}} value="1">
 			<input type="submit" value="Delete from cart">
 		</form>
 		</td>
@@ -51,5 +55,8 @@
 {% endfor %}
 {% endfor %}
 	</table>
+	{% else %}
+	<h1>You currently don't have any items in your cart</h1>
+	{% endif %}
 </div>
 {% endblock content %}

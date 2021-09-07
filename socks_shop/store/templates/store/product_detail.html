@@ -17,7 +17,7 @@
 		<div>{{product.description}}</div>
 		<div>Price: {{product.price}}</div>
 		<form method="get" action="{% url 'add_to_cart' pk=product.pk %}">
-			<input name="quantity" type="number" min="1" max={{product.quantity}}>
+			<input name="quantity" type="number" min="1" max={{product.quantity}} value="1">
 			<input type="submit" value="Add to cart" class="btn btn-info">
 		</form>
 

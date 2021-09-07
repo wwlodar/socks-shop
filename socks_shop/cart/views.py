@@ -35,11 +35,11 @@ def add_to_cart(request, pk):
       order = current_cart[0]
       if not order.products.filter(product__pk=product.pk).exists():
         order.products.add(order_item)
-        order.products.update(quantity=quantity)
-        messages.info(request, "Added Item")
+        order.products.filter(product__pk=product.pk).update(quantity=quantity)
+        messages.info(request, "Added New Item")
         return redirect('cart_view')
       else:
-        if int(quantity) + int(order.products.get().quantity) <= int(Product.objects.get(pk=product.pk).quantity):
+        if int(quantity) + int(order.products.filter(product__pk=product.pk).get().quantity) <= int(Product.objects.get(pk=product.pk).quantity):
           order_item.quantity += int(quantity)
           order_item.save()
           messages.info(request, "Added Item")
@@ -53,7 +53,8 @@ def add_to_cart(request, pk):
     else:
       timestamp = timezone.now()
       current_cart = Cart.objects.create(user=request.user, timestamp=timestamp)
-      current_cart.ordered_products.add(order_item)
+      current_cart.products.add(order_item)
+      current_cart.products.filter(product__pk=product.pk).update(quantity=quantity)
       messages.info(request, "Item added to your cart")
       return redirect('cart_view')
 
@@ -79,3 +80,14 @@ def delete_from_cart(request, pk):
     else:
       messages.info(request, "This Item not in your cart")
       return redirect("product_detail", pk=pk)
+
+
+def delete_all_from_cart(request):
+  current_cart = Cart.objects.filter(user=request.user)
+  if current_cart.exists():
+    current_cart.delete()
+    messages.info(request, "All items were removed")
+    return redirect("cart_view")
+  else:
+    messages.info(request, "There were no items in your cart")
+    return redirect("products_page")

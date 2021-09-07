@@ -1,0 +1,3 @@
+{% for cat in categories %}
+    <a href="{% url 'category_view' name=cat %}" class="btn bg-secondary bg-opacity-75">{{ cat }} </a>
+{% endfor %}

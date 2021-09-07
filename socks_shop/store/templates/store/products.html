@@ -11,10 +11,6 @@
 		<a href="{% url 'product_detail' pk=item.pk %}"><h4>{{item.name}}</h4></a>
 		<div>{{item.description}}</div>
 		<div>Price: {{item.price}}</div>
-		<form method="get" action="{% url 'add_to_cart' pk=item.pk %}">
-			<input name="quantity" type="number" min="1" max={{item.quantity}}>
-			<input type="submit" value="Add to cart" class="btn btn-info">
-		</form>
 	</div>
 	</div>
 </div>
