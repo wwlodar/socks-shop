@@ -1,16 +1,41 @@
 {% extends "store/base.html" %}
 {% load crispy_forms_tags %}
 {% block content %}
-    <h2>Register</h2>
-    <form method="POST">
-			{% csrf_token %}
-        <div class="border-top pt-3">
-            <small class="text-muted">
-                {{ form|crispy }}
-            </small>
-            <div class="form-group">
-                <button class="btn btn-primary" type="submit">Submit</button>
-            </div>
-        </div>
-    </form>
+<h2>Register</h2>
+<form method="POST">
+	{% csrf_token %}
+	<div class="border-top pt-3">
+		<small class="text-muted">
+			{{ form|crispy }}
+		</small>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit">Submit</button>
+		</div>
+	</div>
+</form>
+    {% block javascript %}
+<script>
+// javascript to check if username is available
+	$(document).ready(function () {
+  	$('#id_username').keyup(function () {
+      $.ajax({
+        data: $(this).serialize(), // get the form data
+        url: "{% url 'validate_username' %}",
+        success: function (response) {
+        if (response.is_taken == true) {
+          $('#id_username').removeClass('is-valid').addClass('is-invalid');
+          $('#id_username').after('<div class="invalid-feedback d-block" id="usernameError">This username is not available!</div>')
+             }
+         else {
+          $('#id_username').removeClass('is-invalid').addClass('is-valid');
+          $('#usernameError').remove();}
+          },
+          error: function (response) {
+            console.log(response.responseJSON.errors)}
+                });
+                return false;
+            });
+        })
+    </script>
+    {% endblock javascript %}
 {% endblock content %}

@@ -17,11 +17,27 @@
 		<div>{{product.description}}</div>
 		<div>Price: {{product.price}}</div>
 		<form method="get" action="{% url 'add_to_cart' pk=product.pk %}">
-			<input name="quantity" type="number" min="1" max={{product.quantity}} value="1">
-			<input type="submit" value="Add to cart" class="btn btn-info">
+			<select class="form-control" id="item-sizes-data">
+				{% for item in product.sizes_set.all %}
+					<option value="{{item.pk}}">{{item}}</option>
+				{% endfor %}
+			</select>
+			<div class="ui selection dropdown" id="quantities">
+				<input type="hidden" name="quantity">
+				<i class="dropdown icon"></i>
+				<div class="default text" id="default-quantity">Choose</div>
+				<div class="menu" id=items-size-quantity"></div>
+			</div>
+			<select></select>
+				<input name="quantity" type="number" min="1"  value="1">
+				<input type="submit" value="Add to cart" class="btn btn-info">
 		</form>
 
 	</div>
 	</div>
 </div>
+{% load static %}
+  <script src="{% static '/semantic.js' %}" defer></script>
+  <script src="{% static '/main.js' %}" type="text/javascript" defer></script>
+
 {% endblock content %}

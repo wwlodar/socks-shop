@@ -34,9 +34,9 @@ class Product(models.Model):
 
 
 class Sizes(models.Model):
-  sm = "small"
-  md = "medium"
-  lg = "large"
+  sm = "EU 35-37"
+  md = "EU 38-40"
+  lg = "EU 41-43"
   sizes = [
     (sm, "EU 35-37"),
     (md, "EU 38-40"),
@@ -46,7 +46,7 @@ class Sizes(models.Model):
   price = models.IntegerField(blank=False)
   date_added = models.DateTimeField(auto_now_add=True, auto_now=False)
   quantity = models.IntegerField(null=True)
-  product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
+  product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
   def __str__(self):
-    return Product.name, self.size_type
+    return f" {str(self.size_type)}, {self.quantity}"

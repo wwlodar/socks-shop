@@ -3,6 +3,7 @@ from .forms import ClientRegisterForm
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
 
 
 def register(request):
@@ -26,3 +27,11 @@ def client_profile(request):
     'date_joined': user.date_joined
   }
   return render(request, 'clients/profile.html', context)
+
+
+def validate_username(request):
+    username = request.GET.get('username', None)
+    response = {
+      'is_taken': User.objects.filter(username__iexact=username).exists()
+    }
+    return JsonResponse(response)

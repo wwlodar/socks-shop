@@ -31,7 +31,9 @@ urlpatterns = [
     path('profile/', client_views.client_profile, name="profile"),
     path('cart/add/<int:pk>/', cart_views.add_to_cart, name="add_to_cart"),
     path('cart/delete/<int:pk>/', cart_views.delete_from_cart, name="delete_from_cart"),
-    path('cart/delete_all', cart_views.delete_all_from_cart, name="delete_all_from_cart")
+    path('cart/delete_all', cart_views.delete_all_from_cart, name="delete_all_from_cart"),
+    path('validate_username', client_views.validate_username, name='validate_username')
+
 ]
 
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
