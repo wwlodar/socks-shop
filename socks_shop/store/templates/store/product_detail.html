@@ -1,4 +1,5 @@
 {% extends "store/base.html" %}
+{% load crispy_forms_tags %}
 {% block content %}
 <h2>{{ product.name }}</h2>
 <div>
@@ -14,30 +15,30 @@
 				{% endfor %}
 			</ul>
 {% endif %}
-		<div>{{product.description}}</div>
-		<div>Price: {{product.price}}</div>
-		<form method="get" action="{% url 'add_to_cart' pk=product.pk %}">
-			<select class="form-control" id="item-sizes-data">
-				{% for item in product.sizes_set.all %}
-					<option value="{{item.pk}}">{{item}}</option>
-				{% endfor %}
-			</select>
-			<div class="ui selection dropdown" id="quantities">
-				<input type="hidden" name="quantity">
-				<i class="dropdown icon"></i>
-				<div class="default text" id="default-quantity">Choose</div>
-				<div class="menu" id=items-size-quantity"></div>
-			</div>
-			<select></select>
-				<input name="quantity" type="number" min="1"  value="1">
-				<input type="submit" value="Add to cart" class="btn btn-info">
-		</form>
+		<h4 class="mb-sm-4">{{product.description}}</h4>
+				 <form method="POST" action="{% url 'add_to_cart' %}">
+            {% csrf_token %}
+					 <div id="item-sizes-data">{{form.size|as_crispy_field}}</div>
+					 <div>Quantity</div>
+					 <select id="items-size-quantity" name="quantity" class="form-control mb-sm-1">{{form.quantity}}</select>
+					 <div>
+					   <a>Price per item: </a>
+					   <span id="price"></span>
+					 </div>
+					 <div>
+					   <a class="font-weight-bold text-secondary">Total price:</a>
+						 <span class="font-weight-bold text-secondary" id="total_price"></span>
+					 </div>
+					 <div class="mt-sm-4">
+						<input type="submit" value="Add to cart" id="submit-button"class="btn btn-info">
+					 </div>
+				</form>
 
 	</div>
 	</div>
 </div>
 {% load static %}
-  <script src="{% static '/semantic.js' %}" defer></script>
+
   <script src="{% static '/main.js' %}" type="text/javascript" defer></script>
 
 {% endblock content %}

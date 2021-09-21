@@ -2,6 +2,6 @@
 {% block content %}
 <div>
 	<h1>{{ promotional_data.text }}</h1>
-	<a href="{% url 'products_page' %}"><img src="{{promotional_data.image}}"></a>
+	<a href="{% url 'products_page' %}"><img src="{{promotional_data.image.url}}"></a>
 </div>
 {% endblock content %}

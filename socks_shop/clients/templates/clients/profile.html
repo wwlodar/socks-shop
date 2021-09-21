@@ -3,8 +3,9 @@
     <div class="border-top pt-3">
         <small class="text-muted">
           <h1>{{ user.username }}</h1>
-          <a>{{ user.email}} </a>
-          <a>{{ date_joined|date:"d-M-Y" }}</a>
+          <div>Your email: {{ user.email}} </div>
+          <div>With us since: {{ date_joined|date:"d-M-Y" }}</div>
+          <div>Your shipping address: </div>
         </small>
     </div>
 {% endblock content %}

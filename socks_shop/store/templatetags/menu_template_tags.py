@@ -3,7 +3,7 @@ from store.models import Category
 from cart.models import Cart
 
 register = template.Library()
-register = template.Library()
+
 
 @register.inclusion_tag('show_categories.html')
 def show_categories():
@@ -24,3 +24,8 @@ def cart_item_count(user):
         else:
           return 0
     return 0
+
+
+@register.simple_tag(takes_context=True)
+def set_breakpoint(context):
+  breakpoint()

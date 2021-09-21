@@ -1,5 +1,6 @@
 from django.db import models
 from PIL import Image
+from django.contrib import admin
 
 
 class HomepagePromotional(models.Model):
@@ -17,7 +18,6 @@ class Category(models.Model):
 
 class Product(models.Model):
   name = models.CharField(max_length=60)
-  price = models.IntegerField(default=0)
   description = models.CharField(max_length=250, default='', blank=True, null= True)
   image = models.ImageField(upload_to='products')
   category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
@@ -31,6 +31,9 @@ class Product(models.Model):
       output_size = (300, 300)
       img.thumbnail(output_size)
       img.save(self.image.path)
+
+  def __str__(self):
+    return f" {str(self.name)}"
 
 
 class Sizes(models.Model):
@@ -49,4 +52,8 @@ class Sizes(models.Model):
   product = models.ForeignKey(Product, on_delete=models.CASCADE)
 
   def __str__(self):
-    return f" {str(self.size_type)}, {self.quantity}"
+    return f" {str(self.size_type)}"
+
+  class Meta:
+    unique_together = ('size_type', 'product')
+
