@@ -32,7 +32,9 @@ urlpatterns = [
     path('cart/add/', cart_views.add_to_cart, name="add_to_cart"),
     path('cart/delete/', cart_views.delete_from_cart, name="delete_from_cart"),
     path('cart/delete_all', cart_views.delete_all_from_cart, name="delete_all_from_cart"),
-    path('validate_username', client_views.validate_username, name='validate_username')
+    path('validate_username', client_views.validate_username, name='validate_username'),
+    path('add_shipping_address', client_views.add_shipping, name='add_shipping_address'),
+    path('change_shipping_address', client_views.change_shipping, name='change_shipping_address')
 
 ]
 

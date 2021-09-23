@@ -11,24 +11,47 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="{% static 'store/main.css' %}">
-  <script type="text/javascript">
-  		function uuidv4() {
+	<script type="text/javascript">
+		function getCookie(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+
+
+		function uuidv4() {
 		  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
 		    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
 		    return v.toString(16);
 		  });
 		}
-    let device = "my-id"
-    document.cookie = 'device=' + device + ";domain=;path=/"
-  </script>
 
+		let device = getCookie('device')
+
+		if (device == null || device == undefined){
+			device = uuidv4()
+		}
+
+		document.cookie ='device=' + device + ";domain=;path=/"
+
+	</script>
   <title>Socks Shop!</title>
 </head>
 <body>
 <div class="row">
   <nav class="navbar navbar-nav navbar-light bg-secondary bg-opacity-50">
     <span class="navbar-text">
-      <a href="{% url 'home' %}">Free Shipping!</a>
+      <a class="nav-item btn" href="{% url 'home' %}">Free Shipping!</a>
     </span>
   </nav>
 </div>
@@ -43,10 +66,11 @@
       {% if user.is_authenticated %}
       <a class="nav-item btn" href="{% url 'logout' %}">Logout</a>
       <a class="nav-item btn" href="{% url 'profile' %}">Profile</a>
-      <a href="{% url 'cart_view' %}"><img src="/uploads/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request.user|cart_item_count }}</span>
+      <a href="{% url 'cart_view' %}"><img src="/uploads/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
       {% else %}
       <a class="nav-item btn" href="{% url 'login' %}">Login</a>
       <a class="nav-item btn" href="{% url 'register' %}">Register</a>
+      <a href="{% url 'cart_view' %}"><img src="/uploads/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
       {% endif %}
     </div>
   </div>

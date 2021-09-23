@@ -5,12 +5,20 @@ from store.views import Product, Sizes
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
+from clients.models import Client
 
 
 def view(request):
-  cart = Cart.objects.filter(user=request.user)
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+    cart = Cart.objects.filter(client=client.id)
+    print(client)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
+    cart = Cart.objects.filter(client=client.id)
   if cart.exists():
-    amount = Cart.objects.get(user=request.user).get_total_price()
+    amount = Cart.objects.get(client=client.id).get_total_price()
     context = {'cart': cart, 'amount': amount}
     template = 'cart/view.html'
     return render(request, template, context)
@@ -23,13 +31,19 @@ def add_to_cart(request):
   size = request.POST['size']
   quantity = request.POST['quantity']
   size_chosen = Sizes.objects.get(pk=size)
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+    print(client)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
 
   order_item, created = OrderedProduct.objects.get_or_create(
     product_in_size=size_chosen,
-    user=request.user,
+    client=client,
     ordered=False
   )
-  current_cart = Cart.objects.filter(user=request.user)
+  current_cart = Cart.objects.filter(client=client.id)
   if current_cart.exists():
     order = current_cart[0]
     if not order.products.filter(product_in_size__pk=size_chosen.pk).exists():
@@ -53,7 +67,7 @@ def add_to_cart(request):
 
   else:
     timestamp = timezone.now()
-    current_cart = Cart.objects.create(user=request.user, timestamp=timestamp)
+    current_cart = Cart.objects.create(client=client, timestamp=timestamp)
     current_cart.products.add(order_item)
     current_cart.products.filter(product_in_size__pk=size_chosen.pk).update(quantity=quantity)
     return redirect('cart_view')
@@ -63,8 +77,16 @@ def delete_from_cart(request):
   quantity_delete = request.POST['quantity_delete']
   product_in_size = request.POST['product_in_size']
   size_chosen = Sizes.objects.get(pk=product_in_size)
-  ordered_products = get_object_or_404(OrderedProduct, product_in_size=product_in_size)
-  current_cart = Cart.objects.filter(user=request.user)
+
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+    print(client)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
+
+  ordered_products = get_object_or_404(OrderedProduct, product_in_size=product_in_size, client=client)
+  current_cart = Cart.objects.filter(client=client)
 
   if current_cart.exists():
     order = current_cart[0]
@@ -84,7 +106,14 @@ def delete_from_cart(request):
 
 
 def delete_all_from_cart(request):
-  current_cart = Cart.objects.filter(user=request.user)
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+    print(client)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
+
+  current_cart = Cart.objects.filter(client=client)
   if current_cart.exists():
     current_cart.delete()
     return redirect("cart_view")
