@@ -5,23 +5,24 @@ from store.views import Product, Sizes
 from django.urls import reverse
 from django.utils import timezone
 from django.contrib import messages
-from clients.models import Client
+from clients.models import Client, ShippingAddress
 
 
 def view(request):
   if request.user.is_authenticated:
     client = Client.objects.get(user=request.user)
-    cart = Cart.objects.filter(client=client.id)
-    print(client)
+
   else:
     device = request.COOKIES['device']
     client = Client.objects.get(device=device)
-    cart = Cart.objects.filter(client=client.id)
+
+  cart = Cart.objects.filter(client=client.id)
   if cart.exists():
     amount = Cart.objects.get(client=client.id).get_total_price()
-    context = {'cart': cart, 'amount': amount}
-    template = 'cart/view.html'
-    return render(request, template, context)
+    cart = Cart.objects.get(client=client.id)
+    cart.total_price = int(amount)
+    cart.save()
+    cart = Cart.objects.filter(client=client.id)
   context = {'cart': cart}
   template = 'cart/view.html'
   return render(request, template, context)
@@ -120,3 +121,22 @@ def delete_all_from_cart(request):
   else:
     messages.info(request, "There were no items in your cart")
     return redirect("products_page")
+
+
+def checkout(request):
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
+  cart = Cart.objects.filter(client=client.id)
+  template = 'cart/checkout.html'
+  try:
+    shipping_address = ShippingAddress.objects.get(client=client)
+    context = {'shipping_address': shipping_address, 'cart': cart}
+  except:
+    context = {'cart': cart}
+  return render(request, template, context)
+
+
+

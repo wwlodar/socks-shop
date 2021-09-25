@@ -6,14 +6,20 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from .models import Client, ShippingAddress
 from django.views.generic.edit import UpdateView
+from django.utils.http import is_safe_url
 
 
 def register(request):
+  device = request.COOKIES['device']
   if request.method == 'POST':
     form = ClientRegisterForm(request.POST)
     if form.is_valid():
       form.save()
+      client = Client.objects.get(device=device)
       username = form.cleaned_data.get('username')
+      user = User.objects.get(username=username)
+      client.user = user
+      client.save()
       messages.success(request, f'Account created for {username}, please login')
       return redirect('login')
   else:
@@ -47,30 +53,45 @@ def validate_username(request):
     return JsonResponse(response)
 
 
-@login_required
+
 def add_shipping(request):
   if request.method == 'POST':
     form = ShippingAddressForm(request.POST)
     if form.is_valid():
-      author = form.save(commit=False)
-      client = Client.objects.get(user=request.user)
-      author.client = client
-      author.save()
-      return redirect('profile')
+      form_not_saved = form.save(commit=False)
+      if request.user.is_authenticated:
+        client = Client.objects.get(user=request.user)
+      else:
+        device = request.COOKIES['device']
+        client = Client.objects.get(device=device)
+      form_not_saved.client = client
+      form_not_saved.save()
+
+      next = request.GET.get('next')
+      if not is_safe_url(url=next, allowed_hosts=request.get_host()):
+        next = 'home'
+      return redirect(next)
   else:
     form = ShippingAddressForm()
   return render(request, 'clients/add_shipping_address.html', {'form': form})
 
 
-@login_required
 def change_shipping(request):
-  client = Client.objects.get(user=request.user)
+  if request.user.is_authenticated:
+    client = Client.objects.get(user=request.user)
+  else:
+    device = request.COOKIES['device']
+    client = Client.objects.get(device=device)
   shipping_address = ShippingAddress.objects.get(client=client)
   if request.method == 'POST':
     form = ShippingAddressForm(request.POST, instance=shipping_address)
     if form.is_valid():
       form.save()
-      return redirect('profile')
+
+      next = request.GET.get('next')
+      if not is_safe_url(url=next, allowed_hosts=request.get_host()):
+        next = 'home'
+      return redirect(next)
   else:
     form = ShippingAddressForm(instance=shipping_address)
   return render(request, 'clients/change_shipping_address.html', {'form': form})

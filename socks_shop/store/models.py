@@ -56,4 +56,3 @@ class Sizes(models.Model):
 
   class Meta:
     unique_together = ('size_type', 'product')
-

@@ -34,7 +34,8 @@ urlpatterns = [
     path('cart/delete_all', cart_views.delete_all_from_cart, name="delete_all_from_cart"),
     path('validate_username', client_views.validate_username, name='validate_username'),
     path('add_shipping_address', client_views.add_shipping, name='add_shipping_address'),
-    path('change_shipping_address', client_views.change_shipping, name='change_shipping_address')
+    path('change_shipping_address', client_views.change_shipping, name='change_shipping_address'),
+    path('checkout', cart_views.checkout, name='checkout')
 
 ]
 
