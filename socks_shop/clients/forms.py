@@ -5,7 +5,7 @@ from django.forms import ModelForm
 from .models import ShippingAddress
 
 
-class ClientRegisterForm(UserCreationForm):
+class UserRegisterForm(UserCreationForm):
   email = forms.EmailField()
 
   class Meta:

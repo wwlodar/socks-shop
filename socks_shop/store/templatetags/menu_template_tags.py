@@ -14,9 +14,9 @@ def show_categories():
 
 @register.filter
 def cart_item_count(request):
-  if request.user.is_authenticated:
+  try:
     client, created = Client.objects.get_or_create(user=request.user)
-  else:
+  except:
    if 'device' in request.COOKIES:
     device = request.COOKIES['device']
     client, created = Client.objects.get_or_create(device=device)

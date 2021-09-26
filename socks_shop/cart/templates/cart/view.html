@@ -2,77 +2,84 @@
 {% block content %}
 {% if messages %}
 <ul class="messages">
-    {% for message in messages %}
-    <div {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</div>
-    {% endfor %}
+  {% for message in messages %}
+  <div {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}</div>
+  {% endfor %}
 </ul>
 {% endif %}
 <div>
-	{% if cart  %}
-	<h2 class="mt-sm-2 mb-sm-3">Your cart:</h2>
-	<table class="table">
-		<thead>
-		<th></th>
-		<th>Item</th>
-		<th>Size</th>
-		<th>Quantity</th>
-		<th>Price</th>
-		<th>Do you want to delete?</th>
-		</thead>
-		<tfoot>
-		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td>
-				<a href="{% url 'delete_all_from_cart' %}"><button class="btn btn-secondary">Delete all items</button></a>
-			</td>
-		</tr>
-		<tr>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			<td></td>
-			{% for item in cart %}
-			<td>
-				{% if item.total_price  %}
-					Total price: {{ item.total_price }}
-				{% endif %}</td>
-		</tr>
-		</tfoot>
-{% for prod in item.products.all %}
-	<div>
-		<tr>
-			<td><img src="{{prod.product_in_size.product.image.url}}" height="150"></td>
-		<td>{{prod.product_in_size.product.name}}</td>
-			<td>{{prod.product_in_size.size_type}}</td>
-		<td>Quantity: {{ prod.quantity }}</td>
-		<td>Price: {{ prod.product_in_size.price }} </td>
-		<td>
-		<form method="post" action="{% url 'delete_from_cart' %}"> {% csrf_token %}
-			<div class="row">
-				<div class="col-sm-4">
-					<input hidden name="product_in_size" value={{prod.product_in_size.pk}}>
-					<input name="quantity_delete" type="number" min="1" max={{prod.quantity}} value="1" class="form-control">
-				</div>
-				<div class="col-sm-8">
-					<input type="submit" value="Delete from cart" class="form-control">
-				</div>
-			</div>
-		</form>
-		</td>
-		</tr>
-	</div>
-{% endfor %}
-{% endfor %}
-	</table>
-	<a href="{% url 'checkout' %}"><button class="btn btn-secondary">Proceed to checkout</button></a>
-	{% else %}
-	<h1 class="mt-sm-5">You currently don't have any items in your cart</h1>
-	<a href="{% url 'products_page' %}" class="btn btn-success mt-sm-2">Check out our socks!</a>
-	{% endif %}
+  {% for item in cart %}
+  {% if item.products.exists %}
+
+  <h2 class="mt-sm-2 mb-sm-3">Your cart:</h2>
+  <table class="table">
+    <thead>
+    <th></th>
+    <th>Item</th>
+    <th>Size</th>
+    <th>Quantity</th>
+    <th>Price</th>
+    <th>Do you want to delete?</th>
+    </thead>
+    <tfoot>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>
+        <a href="{% url 'delete_all_from_cart' %}">
+          <button class="btn btn-secondary">Delete all items</button>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td>
+        {% if item.total_price %}
+        Total price: {{ item.total_price }}
+        {% endif %}
+      </td>
+    </tr>
+    </tfoot>
+    {% for prod in item.products.all %}
+    <div>
+      <tr>
+        <td><img src="{{prod.product_in_size.product.image.url}}" height="150"></td>
+        <td>{{prod.product_in_size.product.name}}</td>
+        <td>{{prod.product_in_size.size_type}}</td>
+        <td>Quantity: {{ prod.quantity }}</td>
+        <td>Price: {{ prod.product_in_size.price }}</td>
+        <td>
+          <form method="post" action="{% url 'delete_from_cart' %}"> {% csrf_token %}
+            <div class="row">
+              <div class="col-sm-4">
+                <input hidden name="product_in_size" value={{prod.product_in_size.pk}}>
+                <input name="quantity_delete" type="number" min="1" max={{prod.quantity}} value="1"
+                       class="form-control">
+              </div>
+              <div class="col-sm-8">
+                <input type="submit" value="Delete from cart" class="form-control">
+              </div>
+            </div>
+          </form>
+        </td>
+      </tr>
+    </div>
+    {% endfor %}
+  </table>
+  <a href="{% url 'checkout' %}">
+    <button class="btn btn-secondary">Proceed to checkout</button>
+  </a>
+  {% else %}
+  <h1 class="mt-sm-5">You currently don't have any items in your cart</h1>
+  <a href="{% url 'products_page' %}" class="btn btn-success mt-sm-2">Check out our socks!</a>
+  {% endif %}
+  {% endfor %}
 </div>
 {% endblock content %}
