@@ -1,7 +1,5 @@
 from django.db import models
-from store.models import Product, Sizes
-from django.conf import settings
-from django.contrib.auth.models import User
+from store.models import Sizes
 from clients.models import Client, ShippingAddress
 
 
@@ -12,7 +10,7 @@ class OrderedProduct(models.Model):
   quantity = models.IntegerField(default=1)
 
   def get_total_item_price(self):
-    return self.quantity * self.product_in_size.price
+    return int(self.quantity) * self.product_in_size.price
 
   def __str__(self):
     return f"{self.product_in_size.product}, {self.product_in_size}, {self.quantity}"
@@ -31,7 +29,14 @@ class Cart(models.Model):
     total = 0
     for order_item in self.products.all():
       total += int(order_item.get_total_item_price())
-    return total
+    self.total_price = total
+    self.save()
+
+  def get_cart_by_client(client):
+    return Cart.objects.filter(client=client).order_by('-timestamp')
+
+  def get_product_from_cart(client, size_chosen):
+    return Cart.objects.get(client=client).products.filter(product_in_size__pk=size_chosen.pk)
 
 
 class Order(models.Model):

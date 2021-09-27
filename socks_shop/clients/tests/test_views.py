@@ -1,9 +1,7 @@
-from ..views import register, client_profile, add_shipping
-from ..forms import UserRegisterForm
-from django.test import RequestFactory, TestCase, Client
+from ..views import register, client_profile, add_shipping, change_shipping
+from django.test import Client
 from ..models import ShippingAddress
 from django.urls import reverse, resolve
-from django.http import HttpRequest
 from .factories import *
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
@@ -154,3 +152,103 @@ class TestAddShippingAddress(TestCase):
 
     self.assertEqual(ShippingAddress.objects.count(), 0)
     self.assertEqual(response.status_code, 200)
+
+
+class TestChangeShippingAddress(TestCase):
+
+  def test_change_shipping_get_not_existing(self):
+    url = reverse('change_shipping_address')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, change_shipping)
+
+    request = self.factory.get('/change_shipping_address')
+    request.COOKIES['device'] = ClientFactory().device
+    response = change_shipping(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/add_shipping_address')
+
+  def test_change_shipping_get_existing(self):
+    url = reverse('change_shipping_address')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, change_shipping)
+    shipping_address = ShippingAddressFactory()
+
+    request = self.factory.get('/change_shipping_address', {'shipping_address': shipping_address})
+    request.COOKIES['device'] = shipping_address.client.device
+
+    response = change_shipping(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 200)
+    self.assertIn(shipping_address.town, str(response.content))
+    self.assertIn(shipping_address.street, str(response.content))
+    self.assertIn(shipping_address.firstname, str(response.content))
+    self.assertIn(shipping_address.surname, str(response.content))
+
+  def test_change_shipping_post_success_not_logged(self):
+    url = reverse('change_shipping_address')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, change_shipping)
+    shipping_address = ShippingAddressFactory()
+
+    request = self.factory.post('/change_shipping_address', {'shipping_address': shipping_address,
+                                                             'town': 'dummy_town',
+                                                             'street': 'dummy_street',
+                                                             'firstname': shipping_address.firstname,
+                                                             'surname': shipping_address.surname})
+
+    request.COOKIES['device'] = shipping_address.client.device
+
+    response = change_shipping(request)
+    response.client = Client()
+    print(response)
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(ShippingAddress.objects.count(), 1)
+    self.assertRedirects(response, '/')
+    self.assertEqual(ShippingAddress.objects.get().town, 'dummy_town')
+    self.assertEqual(ShippingAddress.objects.get().street, 'dummy_street')
+
+  def test_change_shipping_post_success_logged(self):
+    url = reverse('change_shipping_address')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, change_shipping)
+    shipping_address = ShippingAddressFactoryLogged()
+
+    request = self.factory.post('/change_shipping_address', {'shipping_address': shipping_address,
+                                                             'town': 'dummy_town',
+                                                             'street': 'dummy_street',
+                                                             'firstname': shipping_address.firstname,
+                                                             'surname': shipping_address.surname})
+    request.user = shipping_address.client.user
+    response = change_shipping(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 302)
+    self.assertEqual(ShippingAddress.objects.count(), 1)
+    self.assertRedirects(response, '/')
+    self.assertEqual(ShippingAddress.objects.get().town, 'dummy_town')
+    self.assertEqual(ShippingAddress.objects.get().street, 'dummy_street')
+
+  def test_change_shipping_post_failed(self):
+    url = reverse('change_shipping_address')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, change_shipping)
+    shipping_address = ShippingAddressFactory()
+
+    request = self.factory.post('/change_shipping_address',
+                                {'town': '',
+                                 'street': '',
+                                 'firstname': '',
+                                 'surname': ''})
+    request.COOKIES['device'] = shipping_address.client.device
+
+    response = change_shipping(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(ShippingAddress.objects.get().town, shipping_address.town)
+    self.assertEqual(ShippingAddress.objects.get().street, shipping_address.street)
+    self.assertEqual(ShippingAddress.objects.get().firstname, shipping_address.firstname)
+    self.assertEqual(ShippingAddress.objects.get().surname, shipping_address.surname)

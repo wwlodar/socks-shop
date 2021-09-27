@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from .models import Product, HomepagePromotional, Category, Sizes
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import ListView, DetailView, View, TemplateView
 from django.views.generic.edit import FormView
 from django.views.generic.edit import FormMixin
 from django.http import JsonResponse
@@ -10,11 +10,13 @@ from django.urls import reverse
 from django.http import HttpResponseForbidden
 
 
-def home(request):
-  context = {
-    'promotional_data': HomepagePromotional.objects.first()
-  }
-  return render(request, 'store/home.html', context)
+class HomeView(TemplateView):
+  template_name = 'store/home.html'
+
+  def get_context_data(self, **kwargs):
+    context = super().get_context_data(**kwargs)
+    context['promotional_data'] = HomepagePromotional.objects.first()
+    return context
 
 
 class ProductsView(ListView):
@@ -63,7 +65,6 @@ class CategoryView(ListView):
 
 
 def get_json_model_data(request, **kwargs):
-  # pk - sizes.pk
   pk = kwargs.get('size_pk')
   selected_size = Sizes.objects.filter(pk=pk)
   data = list(selected_size.values())

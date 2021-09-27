@@ -8,7 +8,7 @@ class UserFactory(factory.django.DjangoModelFactory):
   class Meta:
     model = settings.AUTH_USER_MODEL
   username = 'test_user'
-  email = factory.Faker('ascii_free_email')
+  email = factory.Faker('email')
   password = factory.PostGenerationMethodCall("set_password", "password")
 
 
@@ -36,3 +36,14 @@ class ClientLoggedFactory(factory.django.DjangoModelFactory):
 
   device = 'b6aaaaaa-aaaa-aaaa-aaaa-3c2373e5e5d4'
   user = factory.SubFactory(UserFactory)
+
+
+class ShippingAddressFactoryLogged(factory.django.DjangoModelFactory):
+  class Meta:
+    model = models.ShippingAddress
+
+  street = factory.Faker('street_address')
+  town = factory.Faker('city')
+  firstname = factory.Faker('first_name')
+  surname = factory.Faker('last_name')
+  client = factory.SubFactory(ClientLoggedFactory)

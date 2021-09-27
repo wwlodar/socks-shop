@@ -12,8 +12,7 @@ from clients.functions import get_client
 def view(request):
   client = get_client(request)
   cart, created = Cart.objects.get_or_create(client=client)
-  cart.total_price = int(Cart.objects.get(client=client.id).get_total_price())
-  cart.save()
+  cart.get_total_price()
   cart = Cart.objects.filter(client=client)
   context = {'cart': cart}
   template = 'cart/view.html'
@@ -36,22 +35,21 @@ def add_to_cart(request):
     client=client,
     ordered=False
   )
-  current_cart = Cart.objects.get_or_create(client=client)[0]
-  if not current_cart.products.filter(product_in_size__pk=size_chosen.pk).exists():
+  current_cart = Cart.get_cart_by_client(client)[0]
+
+  if not Cart.get_product_from_cart(client, size_chosen).exists():
     current_cart.products.add(order_item)
-    current_cart.products.filter(product_in_size__pk=size_chosen.pk).update(quantity=quantity)
+    Cart.get_product_from_cart(client, size_chosen).update(quantity=quantity)
     return redirect('cart_view')
   else:
-    if int(quantity) + int(current_cart.products.filter(product_in_size__pk=size_chosen.pk).get().quantity) <= int(
-        Sizes.objects.get(pk=size_chosen.pk).quantity):
+    if int(quantity) + int(Cart.get_product_from_cart(client, size_chosen).get().quantity) <= int(
+      Sizes.objects.get(pk=size_chosen.pk).quantity):
       add_quantity(order_item, quantity)
       return redirect('cart_view')
     else:
-      messages.info(request, "You cannot order this quantity of product. "
-                             "There are only " + str(
-        Sizes.objects.get(pk=size_chosen.pk).quantity) +
-                    " items left and you have "
-                    + str(order_item.quantity) + " in your cart.")
+      messages.info(request, "You cannot order this quantity of product. There are only "
+                    + str(Sizes.objects.get(pk=size_chosen.pk).quantity) +
+                    " items left and you have " + str(order_item.quantity) + " in your cart.")
       product = size_chosen.product
       return redirect('product_detail', pk=product.pk)
 
@@ -63,9 +61,9 @@ def delete_from_cart(request):
 
   client = get_client(request)
   order_item = get_object_or_404(OrderedProduct, product_in_size=product_in_size, client=client)
-  current_cart = Cart.objects.get(client=client)
+  current_cart = Cart.get_cart_by_client(client)[0]
 
-  if current_cart.products.filter(product_in_size__pk=size_chosen.pk).exists():
+  if Cart.get_product_from_cart(client, size_chosen).exists():
     add_quantity(order_item, quantity)
     if order_item.quantity == 0:
       order_item.delete()
@@ -77,7 +75,7 @@ def delete_from_cart(request):
 
 def delete_all_from_cart(request):
   client = get_client(request)
-  current_cart = Cart.objects.filter(client=client)
+  current_cart = Cart.get_cart_by_client(client)
   if current_cart.exists():
     current_cart.delete()
     return redirect("cart_view")
@@ -87,11 +85,11 @@ def delete_all_from_cart(request):
 
 def checkout(request):
   client = get_client(request)
-  cart = Cart.objects.filter(client=client)
+  current_cart = Cart.get_cart_by_client(client)
   template = 'cart/checkout.html'
   try:
     shipping_address = ShippingAddress.objects.get(client=client)
-    context = {'shipping_address': shipping_address, 'cart': cart}
+    context = {'shipping_address': shipping_address, 'cart': current_cart}
   except:
-    context = {'cart': cart}
+    context = {'cart': current_cart}
   return render(request, template, context)

@@ -10,6 +10,7 @@ def validate_username(request):
   response = {
     'is_taken': User.objects.filter(username__iexact=username).exists()
   }
+  print(JsonResponse(response))
   return JsonResponse(response)
 
 

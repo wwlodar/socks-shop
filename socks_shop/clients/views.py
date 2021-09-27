@@ -64,13 +64,17 @@ def add_shipping(request):
 
 
 def change_shipping(request):
-  shipping_address = ShippingAddress.objects.get(client=get_client(request))
-  if request.method == 'POST':
-    form = ShippingAddressForm(request.POST, instance=shipping_address)
-    if form.is_valid():
-      form.save()
+  shipping_address = ShippingAddress.objects.filter(client=get_client(request))
+  if shipping_address.exists():
+    shipping_address = ShippingAddress.objects.get(client=get_client(request))
+    if request.method == 'POST':
+      form = ShippingAddressForm(request.POST, instance=shipping_address)
+      if form.is_valid():
+        form.save()
 
-      return redirect(return_previous_page(request))
+        return redirect(return_previous_page(request))
+    else:
+      form = ShippingAddressForm(instance=shipping_address)
+    return render(request, 'clients/change_shipping_address.html', {'form': form})
   else:
-    form = ShippingAddressForm(instance=shipping_address)
-  return render(request, 'clients/change_shipping_address.html', {'form': form})
+    return redirect('add_shipping_address')

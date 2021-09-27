@@ -1,7 +1,8 @@
 from django.test import RequestFactory, TestCase
 from django.conf import settings
 import factory
-from .factories import ClientFactory, ShippingAddressFactory, UserFactory
+from .factories import ClientFactory, ShippingAddressFactory, UserFactory, ClientLoggedFactory
+from ..models import *
 
 
 class TestUser(TestCase):
@@ -13,11 +14,11 @@ class TestUser(TestCase):
 
 
 class TestClient(TestCase):
-    def test_factory(self):
-      client = ClientFactory()
+  def test_factory(self):
+    client = ClientFactory()
 
-      assert client is not None
-      assert client.device != ""
+    assert client is not None
+    assert client.device != ""
 
 
 class TestShippingAddress(TestCase):
@@ -30,3 +31,15 @@ class TestShippingAddress(TestCase):
     assert shipping_address.firstname != ""
     assert shipping_address.surname != ""
     assert shipping_address.client != ""
+
+    self.assertEqual(ShippingAddress.objects.count(), 1)
+    self.assertEqual(Client.objects.count(), 1)
+
+
+class TestClientLogged(TestCase):
+  def test_factory(self):
+    client = ClientLoggedFactory()
+
+    assert client is not None
+    assert client.device != ""
+    assert client.user != ""
