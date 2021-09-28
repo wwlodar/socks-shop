@@ -34,9 +34,7 @@ class ProductDetailView(FormMixin, DetailView):
   def get_success_url(self):
     return reverse('product-detail', kwargs={'pk': self.object.pk})
 
-  def post(self, request, *args, **kwargs):
-    if not request.user.is_authenticated:
-      return HttpResponseForbidden()
+  def post(self,  *args, **kwargs):
     self.object = self.get_object()
     form = self.get_form()
     if form.is_valid():
@@ -64,7 +62,7 @@ class CategoryView(ListView):
     return Product.objects.filter(category=category)
 
 
-def get_json_model_data(request, **kwargs):
+def get_json_model_data(request,**kwargs):
   pk = kwargs.get('size_pk')
   selected_size = Sizes.objects.filter(pk=pk)
   data = list(selected_size.values())

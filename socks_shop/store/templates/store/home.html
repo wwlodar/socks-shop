@@ -1,7 +1,11 @@
 {% extends "store/base.html" %}
 {% block content %}
 <div>
+	{% if promotional_data %}
 	<h1>{{ promotional_data.text }}</h1>
 	<a href="{% url 'products_page' %}"><img src="{{promotional_data.image.url}}"></a>
+	{% else %}
+	<h5>No new products</h5>
+	{% endif %}
 </div>
 {% endblock content %}

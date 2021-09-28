@@ -2,16 +2,18 @@
 {% block content %}
 <h2>Our products</h2>
 {% for item in product %}
-<div>
-	<div class="row">
-	<div class="col-6">
-		<a href="{% url 'product_detail' pk=item.pk %}"><img src="{{item.image.url}}"></a>
-	</div>
-	<div class="col-6">
-		<a href="{% url 'product_detail' pk=item.pk %}"><h4>{{item.name}}</h4></a>
-		<div>{{item.description}}</div>
-	</div>
-	</div>
-</div>
+  <div>
+    <div class="row">
+      <div class="col-6">
+        <a href="{% url 'product_detail' pk=item.pk %}"><img src="{{item.image.url}}"></a>
+      </div>
+      <div class="col-6">
+        <a href="{% url 'product_detail' pk=item.pk %}"><h4>{{item.name}}</h4></a>
+        <div>{{item.description}}</div>
+      </div>
+    </div>
+  </div>
+{% empty %}
+<div>No products exist.</div>
 {% endfor %}
 {% endblock content %}

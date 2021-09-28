@@ -203,7 +203,6 @@ class TestChangeShippingAddress(TestCase):
 
     response = change_shipping(request)
     response.client = Client()
-    print(response)
     self.assertEqual(response.status_code, 302)
     self.assertEqual(ShippingAddress.objects.count(), 1)
     self.assertRedirects(response, '/')
