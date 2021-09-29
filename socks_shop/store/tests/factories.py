@@ -1,11 +1,8 @@
-from django.test import RequestFactory, TestCase
-from django.conf import settings
 import factory
 from .. import models as models
 from factory import fuzzy
 import datetime
 import tempfile
-from PIL import Image
 import random
 
 

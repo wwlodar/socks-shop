@@ -20,7 +20,7 @@ class Cart(models.Model):
   client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
   products = models.ManyToManyField(OrderedProduct)
   timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
-  total_price = models.IntegerField(default=10)
+  total_price = models.IntegerField(default=0)
 
   def __str__(self):
     return "Cart id: %s" % self.id
@@ -40,9 +40,26 @@ class Cart(models.Model):
 
 
 class Order(models.Model):
-  shipping_address = models.ForeignKey(ShippingAddress, on_delete=models.SET_NULL, null=True)
+  street = models.CharField(max_length=200, null=False, blank=False)
+  town = models.CharField(max_length=200, null=False, blank=False)
+  firstname = models.CharField(max_length=200, null=False, blank=False)
+  surname = models.CharField(max_length=200, null=False, blank=False)
   products = models.ManyToManyField(OrderedProduct)
   date_of_order = models.DateTimeField(auto_now_add=True, auto_now=False)
   total_price = models.IntegerField(default=10)
   paid = models.BooleanField(default=False)
-  device = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+  client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+
+  def populate_from_cart(self, cart):
+    self.total_price = cart.total_price
+
+    self.client = cart.client
+    self.street = cart.client.shippingaddress.street
+    self.town = cart.client.shippingaddress.town
+    self.firstname = cart.client.shippingaddress.firstname
+    self.surname = cart.client.shippingaddress.surname
+    for val in cart.products.all():
+      self.products.add(val)
+    self.save()
+
+    return self

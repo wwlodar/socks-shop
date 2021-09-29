@@ -2,6 +2,7 @@ from .factories import *
 from django.test import override_settings
 import shutil
 from ..views import *
+from django.test import RequestFactory, TestCase
 
 TEST_DIR = 'test_data'
 

@@ -1,9 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
 from .models import Cart, OrderedProduct
-from django.views.generic import ListView
 from store.views import Product, Sizes
-from django.urls import reverse
-from django.utils import timezone
 from django.contrib import messages
 from clients.models import Client, ShippingAddress
 from clients.functions import get_client
