@@ -6,7 +6,7 @@ from clients.models import Client, ShippingAddress
 from clients.functions import get_client
 
 
-def view(request):
+def view_cart(request):
   client = get_client(request)
   cart, created = Cart.objects.get_or_create(client=client)
   cart.get_total_price()
@@ -32,7 +32,7 @@ def add_to_cart(request):
     client=client,
     ordered=False
   )
-  current_cart = Cart.get_cart_by_client(client)[0]
+  current_cart, created = Cart.objects.get_or_create(client=client)
 
   if not Cart.get_product_from_cart(client, size_chosen).exists():
     current_cart.products.add(order_item)

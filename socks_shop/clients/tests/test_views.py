@@ -1,10 +1,12 @@
 from ..views import register, client_profile, add_shipping, change_shipping
 from django.test import Client
-from ..models import ShippingAddress
 from django.urls import reverse, resolve
 from .factories import *
 from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
+from django.test import TestCase
+from .factories import ClientFactory, ShippingAddressFactory, UserFactory, ClientLoggedFactory
+from ..models import ShippingAddress
 
 
 class TestRegister(TestCase):

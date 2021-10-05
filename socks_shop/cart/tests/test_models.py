@@ -1,9 +1,8 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from .factories import *
 from ..models import *
 from clients.tests.factories import ClientFactory, ClientLoggedFactory, ShippingAddressFactory
 from clients.models import Client
-from django.test import override_settings
 import shutil
 
 TEST_DIR = 'test_data'
@@ -47,6 +46,7 @@ class TestCart(TestCase):
     except OSError:
       print(OSError)
 
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_factory(self):
     client = ClientFactory()
     product1 = OrderedProductFactory(client=client)
@@ -88,6 +88,7 @@ class TestCart(TestCase):
     cart = CartFactory.create(client=client)
     print(Cart.get_cart_by_client(client))
 
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_get_product_from_cart(self):
     client = ClientFactory()
     product = OrderedProductFactory()
@@ -159,7 +160,7 @@ class TestOrder(TestCase):
     self.assertEqual(order.town, town)
 
   def test_firstname(self):
-    firstname = 'dummy_fristname'
+    firstname = 'dummy_firstname'
     order = OrderFactory(firstname=firstname)
 
     self.assertEqual(order.firstname, firstname)
