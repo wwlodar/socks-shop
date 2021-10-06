@@ -8,6 +8,7 @@
 </ul>
 {% endif %}
 <div>
+  {% if cart.exists %}
   {% for item in cart %}
   {% if item.products.exists %}
 
@@ -81,5 +82,9 @@
   <a href="{% url 'products_page' %}" class="btn btn-success mt-sm-2">Check out our socks!</a>
   {% endif %}
   {% endfor %}
+  {% else %}
+  <h1 class="mt-sm-5">You currently don't have any items in your cart</h1>
+  <a href="{% url 'products_page' %}" class="btn btn-success mt-sm-2">Check out our socks!</a>
+  {% endif %}
 </div>
 {% endblock content %}

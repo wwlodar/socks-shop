@@ -4,21 +4,18 @@ from store.views import Product, Sizes
 from django.contrib import messages
 from clients.models import Client, ShippingAddress
 from clients.functions import get_client
-
+from .functions import  *
 
 def view_cart(request):
   client = get_client(request)
-  cart, created = Cart.objects.get_or_create(client=client)
-  cart.get_total_price()
+  cart = Cart.objects.filter(client=client)
+  if cart.exists():
+    cart = Cart.objects.get(client=client)
+    cart.get_total_price()
   cart = Cart.objects.filter(client=client)
   context = {'cart': cart}
   template = 'cart/view.html'
   return render(request, template, context)
-
-
-def add_quantity(order_item, quantity):
-  order_item.quantity += int(quantity)
-  order_item.save()
 
 
 def add_to_cart(request):
@@ -62,11 +59,10 @@ def delete_from_cart(request):
 
   if Cart.get_product_from_cart(client, size_chosen).exists():
     add_quantity(order_item, quantity)
-    if order_item.quantity == 0:
+    if order_item.quantity <= 0:
       order_item.delete()
-      if not current_cart.products.exists():
+      if current_cart.products.count() == 0:
         current_cart.delete()
-    return redirect("cart_view")
   return redirect("cart_view")
 
 
@@ -83,10 +79,13 @@ def delete_all_from_cart(request):
 def checkout(request):
   client = get_client(request)
   current_cart = Cart.get_cart_by_client(client)
-  template = 'cart/checkout.html'
-  try:
-    shipping_address = ShippingAddress.objects.get(client=client)
-    context = {'shipping_address': shipping_address, 'cart': current_cart}
-  except:
-    context = {'cart': current_cart}
-  return render(request, template, context)
+  if not current_cart.exists():
+    return redirect('products_page')
+  else:
+    template = 'cart/checkout.html'
+    try:
+      shipping_address = ShippingAddress.objects.get(client=client)
+      context = {'shipping_address': shipping_address, 'cart': current_cart}
+    except:
+      context = {'cart': current_cart}
+    return render(request, template, context)

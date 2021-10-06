@@ -1,26 +1,27 @@
-from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
-from ..models import Cart, OrderedProduct
-from store.views import Product, Sizes
-from django.contrib import messages
-from clients.functions import get_client
+from ..models import Cart
 from django.test import Client
 from django.urls import reverse, resolve
 from .factories import *
-from django.contrib.auth.models import User
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase, override_settings
 from ..views import view_cart, add_quantity, add_to_cart, delete_from_cart, delete_all_from_cart, checkout
-from clients.tests.factories import ClientFactory, ClientLoggedFactory, ShippingAddressFactory
-from clients.models import Client as ClientModel
 import shutil
-from clients.tests.factories import ClientFactory, ClientLoggedFactory
+from clients.tests.factories import ClientFactory, ClientLoggedFactory, ShippingAddressFactory
 from store.tests.factories import SizesFactory, ProductFactory
-from django.http import HttpRequest, QueryDict, SimpleCookie
+from django.http import SimpleCookie
+
 
 TEST_DIR = 'test_data'
 
 
 class TestCartView(TestCase):
+
+  def tearDown(self):
+    print("\nDeleting temporary files...\n")
+    try:
+      shutil.rmtree(TEST_DIR)
+    except OSError:
+      print(OSError)
 
   def test_cart_view_empty_cart(self):
     url = reverse('cart_view')
@@ -103,12 +104,19 @@ class TestCartView(TestCase):
 
 
 class TestAddToCart(TestCase):
+  def tearDown(self):
+    print("\nDeleting temporary files...\n")
+    try:
+      shutil.rmtree(TEST_DIR)
+    except OSError:
+      print(OSError)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_post_no_cart(self):
     url = reverse('add_to_cart')
     self.factory = RequestFactory()
     self.assertEqual(resolve(url).func, add_to_cart)
 
-    self.factory = RequestFactory()
     client = ClientFactory()
     size_created = SizesFactory()
     size = size_created.pk
@@ -130,14 +138,320 @@ class TestAddToCart(TestCase):
     cart = Cart.objects.get(client=client)
     self.assertEqual(cart.products.count(), 1)
 
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_post_cart_no_items(self):
-    pass
+    client = ClientFactory()
+    self.factory = RequestFactory()
+    size_created = SizesFactory()
+    size = size_created.pk
+    quantity = 1
+    cart = CartFactory(client=client)
+    request = self.factory.post('/cart/add',
+                                {'size': size,
+                                 'quantity': quantity,
+                                 'device': client.device})
 
+    request.COOKIES['device'] = client.device
+    response = add_to_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(Cart.objects.count(), 1)
+    self.assertEqual(cart.products.count(), 1)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_post_new_item(self):
-    pass
+    client = ClientFactory()
+    self.factory = RequestFactory()
+    size_created = SizesFactory()
+    size = size_created.pk
+    quantity = 1
+    product = OrderedProductFactory(client=client)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/add',
+                                {'size': size,
+                                 'quantity': quantity,
+                                 'device': client.device})
 
+    request.COOKIES['device'] = client.device
+    response = add_to_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 2)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_post_cart_item_in(self):
-    pass
+    client = ClientFactory()
+    self.factory = RequestFactory()
+    size_created = SizesFactory(quantity=3)
+    size = size_created.pk
+    quantity = 1
+    product = OrderedProductFactory(client=client, quantity=1, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/add',
+                                {'size': size,
+                                 'quantity': quantity,
+                                 'device': client.device})
 
+    request.COOKIES['device'] = client.device
+    response = add_to_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 1)
+    self.assertEqual(cart.products.all()[0].quantity, 2)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_add_too_many_products(self):
-    pass
+    client = ClientFactory()
+    self.factory = RequestFactory()
+    size_created = SizesFactory()
+    size = size_created.pk
+    quantity = 1
+    product = OrderedProductFactory(client=client, quantity=size_created.quantity, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/add',
+                                {'size': size,
+                                 'quantity': quantity,
+                                 'device': client.device})
+
+    setattr(request, 'session', 'session')
+    messages = FallbackStorage(request)
+    setattr(request, '_messages', messages)
+
+    request.COOKIES['device'] = client.device
+    response = add_to_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/product/' + str(product.pk) + '/')
+    self.assertEqual(cart.products.count(), 1)
+    self.assertEqual(cart.products.all()[0].quantity, product.quantity)
+
+
+class TestDeleteFromCart(TestCase):
+  def tearDown(self):
+    print("\nDeleting temporary files...\n")
+    try:
+      shutil.rmtree(TEST_DIR)
+    except OSError:
+      print(OSError)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_one(self):
+    url = reverse('delete_from_cart')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, delete_from_cart)
+
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=3)
+    size = size_created.pk
+    product = OrderedProductFactory(client=client, quantity=2, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/delete',
+                                {'product_in_size': size,
+                                 'quantity_delete': 1,
+                                 'device': client.device})
+
+    request.COOKIES['device'] = client.device
+    response = delete_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 1)
+    self.assertEqual(cart.products.all()[0].quantity, 1)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_more_than_one(self):
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=5)
+    size = size_created.pk
+    product = OrderedProductFactory(client=client, quantity=4, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/delete',
+                                {'product_in_size': size,
+                                 'quantity_delete': 3,
+                                 'device': client.device})
+
+    request.COOKIES['device'] = client.device
+    response = delete_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 1)
+    self.assertEqual(cart.products.all()[0].quantity, 1)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_all(self):
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=4)
+    size = size_created.pk
+    product = OrderedProductFactory(client=client, quantity=3, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/delete',
+                                {'product_in_size': size,
+                                 'quantity_delete': 3,
+                                 'device': client.device})
+
+    request.COOKIES['device'] = client.device
+    response = delete_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 0)
+    self.assertEqual(Cart.objects.count(), 0)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_more_than_exists(self):
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=4)
+    size = size_created.pk
+    product = OrderedProductFactory(client=client, quantity=5, product_in_size=size_created)
+    cart = CartFactory(client=client, products=[product, ])
+    request = self.factory.post('/cart/delete',
+                                {'product_in_size': size,
+                                 'quantity_delete': 6,
+                                 'device': client.device})
+
+    request.COOKIES['device'] = client.device
+    response = delete_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(cart.products.count(), 0)
+    self.assertEqual(Cart.objects.count(), 0)
+
+
+class TestDeleteAll(TestCase):
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_all_existing_cart(self):
+    url = reverse('delete_all_from_cart')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, delete_all_from_cart)
+
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    cart = CartFactory(client=client, products=[])
+
+    request = self.factory.get('/cart/delete_all', device=client.device)
+
+    request.COOKIES['device'] = client.device
+    response = delete_all_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/cart/')
+    self.assertEqual(Cart.objects.count(), 0)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_delete_all_not_existing_cart(self):
+    url = reverse('delete_all_from_cart')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, delete_all_from_cart)
+
+    self.factory = RequestFactory()
+    client = ClientFactory()
+
+    request = self.factory.get('/cart/delete_all', client=client)
+
+    request.COOKIES['device'] = client.device
+    response = delete_all_from_cart(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/products/')
+    self.assertEqual(Cart.objects.count(), 0)
+
+
+class TestCheckout(TestCase):
+  def test_no_cart(self):
+    url = reverse('checkout')
+    self.factory = RequestFactory()
+    self.assertEqual(resolve(url).func, checkout)
+
+    client = ClientFactory()
+    request = self.factory.get('checkout')
+
+    request.COOKIES['device'] = client.device
+    response = checkout(request)
+    response.client = Client()
+
+    response.client.cookies = SimpleCookie({'device': client.device})
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/products/')
+    self.assertEqual(Cart.objects.count(), 0)
+
+  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
+  def test_cart_no_shipping(self):
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=4)
+    product = OrderedProductFactory(client=client, quantity=5, product_in_size=size_created)
+
+    cart = CartFactory(client=client, products=[product, ])
+
+    request = self.factory.get('checkout')
+
+    request.COOKIES['device'] = client.device
+    response = checkout(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(Cart.objects.count(), 1)
+    self.assertIn('Add shipping address', str(response.content))
+
+  def test_cart_with_shipping(self):
+    self.factory = RequestFactory()
+    client = ClientFactory()
+    size_created = SizesFactory(quantity=4)
+    shipping_address = ShippingAddressFactory(client=client)
+    product = OrderedProductFactory(client=client, quantity=5, product_in_size=size_created)
+
+    cart = CartFactory(client=client, products=[product, ])
+
+    request = self.factory.get('checkout')
+
+    request.COOKIES['device'] = client.device
+    response = checkout(request)
+    response.client = Client()
+
+    self.assertEqual(response.status_code, 200)
+    self.assertEqual(Cart.objects.count(), 1)
+    self.assertIn(shipping_address.town, str(response.content))
+    self.assertIn(shipping_address.street, str(response.content))
+    self.assertIn(shipping_address.firstname, str(response.content))
+    self.assertIn(shipping_address.surname, str(response.content))
+
+
