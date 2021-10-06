@@ -1,1 +1,1 @@
-web: gunicorn backend.wsgi:socks_shop
+web: gunicorn backend.wsgi
