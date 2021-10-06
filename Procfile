@@ -1,1 +1,1 @@
-web: gunicorn socks-shop.wsgi
+"web: gunicorn socks-shop.wsgi"
