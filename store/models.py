@@ -5,7 +5,7 @@ from django.contrib import admin
 
 class HomepagePromotional(models.Model):
   text = models.CharField(max_length=100)
-  image = models.ImageField(upload_to='static/promotional_pictures')
+  image = models.ImageField(upload_to='promotional_pictures')
 
 
 class Category(models.Model):
@@ -19,7 +19,7 @@ class Category(models.Model):
 class Product(models.Model):
   name = models.CharField(max_length=60)
   description = models.CharField(max_length=250, default='', blank=True, null= True)
-  image = models.ImageField(upload_to='static/products')
+  image = models.ImageField(upload_to='products')
   category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
   def save(self, *args, **kwargs):

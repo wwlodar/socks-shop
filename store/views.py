@@ -23,7 +23,6 @@ class ProductsView(ListView):
   model = Product
   template_name = 'store/products.html'
   context_object_name = 'product'
-  MEDIA_URL = '/uploads/'
   ordering_by = ['date_posted']
 
 
@@ -55,7 +54,6 @@ class CategoryView(ListView):
   model = Product
   template_name = 'store/products.html'
   context_object_name = 'product'
-  MEDIA_URL = '/uploads/'
 
   def get_queryset(self):
     category = get_object_or_404(Category, name__iexact=self.kwargs.get('name'))

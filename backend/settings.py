@@ -40,8 +40,10 @@ INSTALLED_APPS = [
   'django.contrib.contenttypes',
   'django.contrib.sessions',
   'django.contrib.messages',
+  'cloudinary_storage',
   'django.contrib.staticfiles',
   'whitenoise.runserver_nostatic',
+  'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -130,6 +132,8 @@ STATIC_URL = "/static/"
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 WHITENOISE_STATIC_PREFIX = "/static/"
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -142,3 +146,11 @@ CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 django_heroku.settings(locals())
+
+CLOUDINARY_STORAGE = {
+  'CLOUD_NAME': os.environ['YOUR_CLOUD_NAME'],
+  'API_KEY': os.environ['YOUR_API_KEY'],
+  'API_SECRET': os.environ['YOUR_API_SECRET'],
+}
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
