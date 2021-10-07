@@ -5,7 +5,7 @@ from django.contrib import admin
 
 class HomepagePromotional(models.Model):
   text = models.CharField(max_length=100)
-  image = models.ImageField(upload_to='store/static/promotional_pictures')
+  image = models.ImageField(upload_to='static/promotional_pictures')
 
 
 class Category(models.Model):
