@@ -1,5 +1,5 @@
 from ..views import register, client_profile, add_shipping, change_shipping
-from django.test import Client
+from django.test import Client, RequestFactory
 from django.urls import reverse, resolve
 from .factories import *
 from django.contrib.auth.models import User

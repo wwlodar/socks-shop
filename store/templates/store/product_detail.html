@@ -1,11 +1,12 @@
 {% extends "store/base.html" %}
 {% load crispy_forms_tags %}
+{% load static %}
 {% block content %}
 <h2>{{ product.name }}</h2>
 <div>
 	<div class="row">
 	<div class="col-6">
-		<img src="{{product.image.url}}">
+		<img src="{% static product.image.url %}">
 	</div>
 	<div class="col-6">
 		{% if messages %}
@@ -38,7 +39,6 @@
 	</div>
 </div>
 {% load static %}
-
-  <script src="{% static '/main.js' %}" type="text/javascript" defer></script>
+  <script src="{% static 'store/main.js' %}" type="text/javascript" defer></script>
 
 {% endblock content %}

@@ -4,7 +4,7 @@ from django.urls import reverse, resolve
 from .factories import *
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase, override_settings
-from ..views import view_cart, add_quantity, add_to_cart, delete_from_cart, delete_all_from_cart, checkout
+from ..views import view_cart, add_to_cart, delete_from_cart, delete_all_from_cart, checkout
 import shutil
 from clients.tests.factories import ClientFactory, ClientLoggedFactory, ShippingAddressFactory
 from store.tests.factories import SizesFactory, ProductFactory

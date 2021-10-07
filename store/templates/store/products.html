@@ -1,11 +1,12 @@
 {% extends "store/base.html" %}
+{% load static %}
 {% block content %}
 <h2>Our products</h2>
 {% for item in product %}
   <div>
     <div class="row">
       <div class="col-6">
-        <a href="{% url 'product_detail' pk=item.pk %}"><img src="{{item.image.url}}"></a>
+        <a href="{% url 'product_detail' pk=item.pk %}"><img src="{% static item.image.url %}"></a>
       </div>
       <div class="col-6">
         <a href="{% url 'product_detail' pk=item.pk %}"><h4>{{item.name}}</h4></a>
