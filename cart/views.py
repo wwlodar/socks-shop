@@ -4,7 +4,8 @@ from store.views import Product, Sizes
 from django.contrib import messages
 from clients.models import Client, ShippingAddress
 from clients.functions import get_client
-from .functions import  *
+from .functions import *
+
 
 def view_cart(request):
   client = get_client(request)
@@ -37,7 +38,7 @@ def add_to_cart(request):
     return redirect('cart_view')
   else:
     if int(quantity) + int(Cart.get_product_from_cart(client, size_chosen).get().quantity) <= int(
-      Sizes.objects.get(pk=size_chosen.pk).quantity):
+        Sizes.objects.get(pk=size_chosen.pk).quantity):
       add_quantity(order_item, quantity)
       return redirect('cart_view')
     else:
@@ -89,3 +90,21 @@ def checkout(request):
     except:
       context = {'cart': current_cart}
     return render(request, template, context)
+
+from django import http
+
+import sys
+from django.template import loader, Context
+
+
+def this_server_error(request, template_name='cart/nondefault500.html'):
+  """
+  500 error handler.
+
+  Templates: `500.html`
+  Context: sys.exc_info() results
+   """
+  t = loader.get_template(template_name)  # You need to create a 500.html template.
+  ltype, lvalue, ltraceback = sys.exc_info()
+  context={'type': ltype, 'value': lvalue, 'traceback': ltraceback}
+  return http.HttpResponseServerError(t.render(context))

@@ -66,11 +66,11 @@
       {% if user.is_authenticated %}
       <a class="nav-item btn" href="{% url 'logout' %}">Logout</a>
       <a class="nav-item btn" href="{% url 'profile' %}">Profile</a>
-      <a href="{% url 'cart_view' %}"><img src="/static/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
+      <a href="{% url 'cart_view' %}"><img src="static/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
       {% else %}
       <a class="nav-item btn" href="{% url 'login' %}">Login</a>
       <a class="nav-item btn" href="{% url 'register' %}">Register</a>
-      <a href="{% url 'cart_view' %}"><img src="/static/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
+      <a href="{% url 'cart_view' %}"><img src="static/shopping_cart1600.png" height="45"></a><span class="bagde"> {{ request|cart_item_count }}</span>
       {% endif %}
     </div>
   </div>
