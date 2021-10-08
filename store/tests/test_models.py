@@ -52,12 +52,6 @@ class TestProduct(TestCase):
   def test_str(self):
     self.assertEqual(str(self.product), f" {str(self.product.name)}")
 
-  @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
-  def test_img_size(self):
-    product = ProductFactory()
-    self.assertEqual(product.image.height, 300)
-    self.assertEqual(product.image.width, 300)
-
 
 class TestSize(TestCase):
   @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))

@@ -1,6 +1,6 @@
 from ..forms import UserRegisterForm, ShippingAddressForm
 from .factories import *
-
+from django.test import TestCase, RequestFactory
 
 class TestForms(TestCase):
 

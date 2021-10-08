@@ -1,6 +1,6 @@
 from ..functions import *
 from .factories import *
-
+from django.test import TestCase, RequestFactory
 
 class TestGetClient(TestCase):
 
