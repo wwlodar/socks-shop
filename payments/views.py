@@ -23,9 +23,10 @@ class StatusSerializer(serializers.ModelSerializer):
 
 def notify_payment_view(request):
   logger.debug('notify payments view')
+  print('get_to_view')
   if request.method == 'POST':
     logger.debug('POST')
-    serializer = serializers.StatusSerializer(
+    serializer = StatusSerializer(
       data=json.loads(request.body))
 
     if not serializer.is_valid():
@@ -51,7 +52,6 @@ def notify_payment_view(request):
           order.status = 'COMPLETED'
           order.status_date = datetime.date.today()
           order.save()
-          order.extend_subscription()
         elif serializer.validated_data['order']['status'] == 'PENDING':
           logger.debug("ZWALIDOWANY order.status JEST PENDING")
           pass
