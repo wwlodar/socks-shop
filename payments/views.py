@@ -22,8 +22,9 @@ class StatusSerializer(serializers.ModelSerializer):
 
 
 def notify_payment_view(request):
-  logger.debug('notify payments view')
   print('get_to_view')
+  print(request.method)
+  print(request.body)
   if request.method == 'POST':
     logger.debug('POST')
     serializer = StatusSerializer(

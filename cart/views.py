@@ -131,12 +131,8 @@ def proceed_to_payment(request):
   print('the returned URL is ', url)
 
   if url:
-    logger.debug(f'Redirecting to {url}')
-    print(1)
     return redirect(url)
   else:
-    logger.debug(f'No URL returned')
-    print(2)
     raise Http404()
 
 

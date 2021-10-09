@@ -58,7 +58,8 @@ def send_payu_order(
   client = get_client(request)
   order = Order.objects.filter(client=client, payment_status='NEW').order_by('-date_of_order')[0]
   payload = json.dumps({
-    "notifyUrl": "https://socks-shop.herokuapp.com/notify",
+    "notifyUrl": "http://127.0.0.1:8000/notify",
+    "continueUrl": "http://127.0.0.1:8000/",
     "customerIp": client_ip,
     "merchantPosId": os.environ['pos_id'],
     "description": 'Order from socks-shop',
@@ -113,12 +114,12 @@ def send_payu_order(
         u"Invalid PayU response."
       )
   if response.status_code == 403:
-    logger.error('Not allowed on PayU server - error 403! Check your configuration!')
+    print('Not allowed on PayU server - error 403! Check your configuration!')
 
   if response.status_code == 401:
-    logger.error('Error 401, Check your token, authorization seems to be the problem.')
+    print('Error 401, Check your token, authorization seems to be the problem.')
   else:
-    logger.error(
+    print(
       f"Invalid PayU order status code {response.status_code}, check your code."
     )
 
