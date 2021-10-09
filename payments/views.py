@@ -27,21 +27,21 @@ def notify_payment_view(request):
   print(request.method)
   print(request.body)
   if request.method == 'POST':
-    logger.debug('POST')
-    serializer = StatusSerializer(
+    print('POST')
+    serializer = serializers.ModelSerializer(
       data=json.loads(request.body))
 
     if not serializer.is_valid():
-      logger.exception(u"PayU: Unsupported data. {0}".format(
+      print(u"PayU: Unsupported data. {0}".format(
         force_text(request.body)))
       return HttpResponse('')
 
     try:
-      logger.debug("Fetching order")
+      print("Fetching order")
       order = Order.objects.get(
         external_id=serializer.validated_data['order']['extOrderId'])
     except Order.DoesNotExist:
-      logger.exception(
+      print(
         u"PayU: order does not exist. {0}".format(
           force_text(request.body)))
       return HttpResponse('')
