@@ -21,6 +21,7 @@ class StatusSerializer(serializers.ModelSerializer):
   pass
 
 
+@csrf_exempt
 def notify_payment_view(request):
   print('get_to_view')
   print(request.method)
