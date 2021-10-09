@@ -1,12 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404, HttpResponseRedirect
-from .models import Cart, OrderedProduct
+from .models import Cart, OrderedProduct, Order
 from store.views import Product, Sizes
 from django.contrib import messages
 from clients.models import Client, ShippingAddress
 from clients.functions import get_client
 from .functions import *
+import secrets
+import string
+from django.contrib.auth.models import User
+from .forms import *
+from payments.utils import send_payu_order
 
-
+from django.shortcuts import render
+from django.views.generic import ListView, DetailView
+from django.shortcuts import get_object_or_404, redirect
+from django.http import Http404, HttpResponse
+import logging
+logger = logging.getLogger(__name__)
 def view_cart(request):
   client = get_client(request)
   cart = Cart.objects.filter(client=client)
@@ -91,8 +101,46 @@ def checkout(request):
       context = {'cart': current_cart}
     return render(request, template, context)
 
-from django import http
 
+def add_email(request):
+  client = get_client(request)
+  if request.user.is_authenticated:
+    return redirect("proceed_to_payment")
+  else:
+    form = AddEmailForm()
+    context = {'form': form}
+    template = 'cart/add_email.html'
+    return render(request, template, context)
+
+
+def proceed_to_payment(request):
+  client = get_client(request)
+  if not request.user.is_authenticated:
+    email = request.POST['email']
+    password = ""
+    for _ in range(9):
+      password += secrets.choice(string.ascii_lowercase)
+    password += secrets.choice(string.ascii_uppercase)
+    password += secrets.choice(string.digits)
+    User.objects.create(client=client, email=email, password= password, username=email)
+  order = Order.objects.create(client=client)
+  cart = Cart.objects.get(client=client)
+  order.populate_from_cart(cart=cart)
+
+  url = send_payu_order(request=request)
+  print('the returned URL is ', url)
+
+  if url:
+    logger.debug(f'Redirecting to {url}')
+    print(1)
+    return redirect(url)
+  else:
+    logger.debug(f'No URL returned')
+    print(2)
+    raise Http404()
+
+
+from django import http
 import sys
 from django.template import loader, Context
 
@@ -106,5 +154,5 @@ def this_server_error(request, template_name='cart/nondefault500.html'):
    """
   t = loader.get_template(template_name)  # You need to create a 500.html template.
   ltype, lvalue, ltraceback = sys.exc_info()
-  context={'type': ltype, 'value': lvalue, 'traceback': ltraceback}
+  context = {'type': ltype, 'value': lvalue, 'traceback': ltraceback}
   return http.HttpResponseServerError(t.render(context))

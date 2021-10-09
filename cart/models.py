@@ -39,6 +39,14 @@ class Cart(models.Model):
     return Cart.objects.get(client=client).products.filter(product_in_size__pk=size_chosen.pk)
 
 
+PAYMENT_STATUS = (
+  ('NEW', 'NEW'),
+  ('PENDING', 'PENDING'),
+  ('CANCELED', 'CANCELED'),
+  ('COMPLETED', 'COMPLETED'),
+)
+
+
 class Order(models.Model):
   street = models.CharField(max_length=200, null=False, blank=False)
   town = models.CharField(max_length=200, null=False, blank=False)
@@ -47,8 +55,10 @@ class Order(models.Model):
   products = models.ManyToManyField(OrderedProduct)
   date_of_order = models.DateTimeField(auto_now_add=True, auto_now=False)
   total_price = models.IntegerField(default=10)
-  paid = models.BooleanField(default=False)
   client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
+  payment_status = models.CharField(choices=PAYMENT_STATUS, default='NEW', max_length=9)
+  status_date = models.DateField(blank=True,null=True,default=None
+  )
 
   def populate_from_cart(self, cart):
     self.total_price = cart.total_price

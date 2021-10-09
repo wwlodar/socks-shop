@@ -17,3 +17,6 @@ class ShippingAddressForm(ModelForm):
   class Meta:
     model = ShippingAddress
     exclude = ['client']
+
+
+

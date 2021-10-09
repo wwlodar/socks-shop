@@ -20,6 +20,7 @@ from clients import views as client_views
 from cart import views as cart_views
 from django.conf import settings
 from django.conf.urls.static import static
+from payments import views as payments_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -35,7 +36,11 @@ urlpatterns = [
     path('validate_username', client_views.validate_username, name='validate_username'),
     path('add_shipping_address', client_views.add_shipping, name='add_shipping_address'),
     path('change_shipping_address', client_views.change_shipping, name='change_shipping_address'),
-    path('checkout', cart_views.checkout, name='checkout')
+    path('checkout', cart_views.checkout, name='checkout'),
+    path('proceed_to_payment', cart_views.proceed_to_payment, name='proceed_to_payment'),
+    path('notify', payments_views.notify_payment_view, name='notify_payments'),
+    path('add_email', cart_views.add_email, name='add_email')
+
 
 ]
 handler500 = 'cart.views.this_server_error'

@@ -14,3 +14,6 @@ class ShippingAddress(models.Model):
   firstname = models.CharField(max_length=200, null=False, blank=False)
   surname = models.CharField(max_length=200, null=False, blank=False)
   client = models.OneToOneField(Client, on_delete=models.CASCADE)
+
+
+

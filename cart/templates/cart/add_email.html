@@ -1,0 +1,16 @@
+{% extends "store/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<h2>Add email</h2>
+<form method="POST">
+	{% csrf_token %}
+	<div class="border-top pt-3">
+		<small class="text-muted">
+			{{ form|crispy }}
+		</small>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit">Pay</button>
+		</div>
+	</div>
+</form>
+{% endblock %}
