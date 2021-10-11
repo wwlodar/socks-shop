@@ -31,6 +31,9 @@ def notify_payment_view(request):
   print(serializers.Serializer(request.body))
   if request.method == 'POST':
     print('POST')
+    data = json.loads(request.body)
+    print(data)
+    print(data['order'])
     serializer = serializers.Serializer(
       data=json.loads(request.body))
     print(serializer)
