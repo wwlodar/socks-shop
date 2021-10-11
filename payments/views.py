@@ -36,7 +36,7 @@ def notify_payment_view(request):
     order_id = (data['order']['extOrderId'])
     print("Fetching order")
     print(Order.objects.get(
-      external_id=order_id))
+      pk=order_id))
     order = Order.objects.get(external_id=order_id)
     print(order)
     print(order.status)
