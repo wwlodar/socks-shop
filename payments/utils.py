@@ -93,7 +93,8 @@ def send_payu_order(
     headers=headers,
     allow_redirects=False
   )
-
+  order.payment_status = 'NEW'
+  print(order.payment_status)
   if response.status_code == 302:
 
     try:

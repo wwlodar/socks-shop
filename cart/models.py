@@ -57,8 +57,7 @@ class Order(models.Model):
   total_price = models.IntegerField(default=10)
   client = models.ForeignKey(Client, on_delete=models.SET_NULL, null=True)
   payment_status = models.CharField(choices=PAYMENT_STATUS, default='NEW', max_length=9)
-  status_date = models.DateField(blank=True,null=True,default=None
-  )
+  status_date = models.DateField(blank=True, null=True, default=None)
 
   def populate_from_cart(self, cart):
     self.total_price = cart.total_price

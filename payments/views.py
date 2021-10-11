@@ -38,13 +38,13 @@ def notify_payment_view(request):
     print("Order.payment_status was not completed yet!")
     with transaction.atomic():
       if data['order']['status'] == 'COMPLETED':
-        print(f"The concerned order.payment_status {order} is completed: {order.payment_status}")
+        print(f"The concerned {order} is completed: {order.payment_status}")
         order.payment_status = 'COMPLETED'
         order.status_date = datetime.date.today()
         order.save()
         print(order.payment_status)
       elif data['order']['status'] == 'PENDING':
-        print("ZWALIDOWANY order.payment_status JEST PENDING")
+        print("{order} JEST PENDING")
         pass
       else:
         print(u"ZWALIDOWANY order.payment_status = {0}".format(data['order']['status']))
@@ -55,5 +55,6 @@ def notify_payment_view(request):
 
 
 def after_payment(request):
-  print(request.body)
-  print(request.content)
+  print(request)
+  order_id = request.body
+  return render(request, 'payments/after_payment', {'order_id': order_id})
