@@ -33,47 +33,33 @@ def notify_payment_view(request):
     print('POST')
     data = json.loads(request.body)
     print(data)
-    print(data['order'])
-    serializer = serializers.Serializer(
-      data=json.loads(request.body))
-    print(serializer)
-    print(serializer.validated_data)
+    order_id = (data['order']['extOrderId'])
+    print("Fetching order")
+    print(Order.objects.get(
+      external_id=order_id))
+    order = Order.objects.get(external_id=order_id)
+    print(order)
+    print(order.status)
 
-    if not serializer.is_valid():
-      print(u"PayU: Unsupported data. {0}".format(
-        force_text(request.body)))
-      return HttpResponse('')
+  if order.status != 'COMPLETED':
+    print("Order.status was not completed yet!")
+    with transaction.atomic():
+      if data['order']['status'] == 'COMPLETED':
+        print(f"The concerned order.status {order} is completed: {order.status}")
+        order.status = 'COMPLETED'
+        order.status_date = datetime.date.today()
+        order.save()
+      elif data['order']['status'] == 'PENDING':
+        print("ZWALIDOWANY order.status JEST PENDING")
+        pass
+      else:
+        print(u"ZWALIDOWANY order.status = {0}".format(data['order']['status']))
+        order.status = 'CANCELED'
+        order.status_date = datetime.date.today()
+        order.save()
+  return HttpResponse('')
 
-    try:
-      print("Fetching order")
-      print(Order.objects.get(
-        external_id=serializer.validated_data['order']['extOrderId']))
-      print(Order.objects.get(
-        pk=serializer.validated_data['order']['extOrderId']))
-      order = Order.objects.get(
-        pk=serializer.validated_data['order']['extOrderId'])
-      print(order)
-      print(order.status)
-    except Order.DoesNotExist:
-      print(
-        u"PayU: order does not exist. {0}".format(
-          force_text(request.body)))
-      return HttpResponse('')
 
-    if order.status != 'COMPLETED':
-      print("Order.status was not completed yet!")
-      with transaction.atomic():
-        if serializer.validated_data['order']['status'] == 'COMPLETED':
-          print(f"The concerned order.status {order} is completed: {order.status}")
-          order.status = 'COMPLETED'
-          order.status_date = datetime.date.today()
-          order.save()
-        elif serializer.validated_data['order']['status'] == 'PENDING':
-          print("ZWALIDOWANY order.status JEST PENDING")
-          pass
-        else:
-          print(u"ZWALIDOWANY order.status = {0}".format(serializer.validated_data['order']['status']))
-          order.status = 'CANCELED'
-          order.status_date = datetime.date.today()
-          order.save()
-    return HttpResponse('')
+def after_payment(request):
+  print(request.body)
+  print(request.content)
