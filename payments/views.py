@@ -31,26 +31,24 @@ def notify_payment_view(request):
     order_id = (data['order']['extOrderId'])
     print("Fetching order")
     order = Order.objects.get(pk=order_id)
-    print(order)
-    print(order.payment_status)
 
     if order.payment_status != 'COMPLETED':
-      print("Order.payment_status was not completed yet!")
+      print(f"{order} was not completed yet!")
       with transaction.atomic():
         if data['order']['status'] == 'COMPLETED':
           print(f"The concerned {order} is completed: {order.payment_status}")
           order.payment_status = 'COMPLETED'
           print(order.payment_status)
-          order.status_date = datetime.date.today()
+          order.status_date = datetime.today()
           order.save()
           print(order.payment_status)
         elif data['order']['status'] == 'PENDING':
-          print("{order} JEST PENDING")
+          print(f"{order} JEST PENDING")
           pass
         else:
-          print(u"ZWALIDOWANY order.payment_status = {0}".format(data['order']['status']))
+          print(u"order.payment_status = {0}".format(data['order']['status']))
           order.payment_status = 'CANCELED'
-          order.status_date = datetime.date.today()
+          order.status_date = datetime.today()
           order.save()
     return HttpResponse('')
 
