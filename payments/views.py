@@ -25,12 +25,16 @@ class StatusSerializer(serializers.ModelSerializer):
 
 @csrf_exempt
 def notify_payment_view(request):
+  print('get_to_view')
+  print(request.method)
+  print(request.body)
+  print(serializers.Serializer(request.body))
   if request.method == 'POST':
     print('POST')
     serializer = serializers.Serializer(
       data=json.loads(request.body))
+    print(serializer)
     print(serializer.validated_data)
-    print(serializer.validated_data['order'])
 
     if not serializer.is_valid():
       print(u"PayU: Unsupported data. {0}".format(
