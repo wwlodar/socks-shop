@@ -42,7 +42,9 @@ def notify_payment_view(request):
     try:
       print("Fetching order")
       order = Order.objects.get(
-        external_id=serializer.validated_data['order']['extOrderId'])
+        pk=serializer.validated_data['order']['extOrderId'])
+      print(order)
+      print(order.status)
     except Order.DoesNotExist:
       print(
         u"PayU: order does not exist. {0}".format(
@@ -50,18 +52,18 @@ def notify_payment_view(request):
       return HttpResponse('')
 
     if order.status != 'COMPLETED':
-      logger.debug("Order.status was not completed yet!")
+      print("Order.status was not completed yet!")
       with transaction.atomic():
         if serializer.validated_data['order']['status'] == 'COMPLETED':
-          logger.debug(f"The concerned order.status {order} is completed: {order.status}")
+          print(f"The concerned order.status {order} is completed: {order.status}")
           order.status = 'COMPLETED'
           order.status_date = datetime.date.today()
           order.save()
         elif serializer.validated_data['order']['status'] == 'PENDING':
-          logger.debug("ZWALIDOWANY order.status JEST PENDING")
+          print("ZWALIDOWANY order.status JEST PENDING")
           pass
         else:
-          logger.debug(u"ZWALIDOWANY order.status = {0}".format(serializer.validated_data['order']['status']))
+          print(u"ZWALIDOWANY order.status = {0}".format(serializer.validated_data['order']['status']))
           order.status = 'CANCELED'
           order.status_date = datetime.date.today()
           order.save()
