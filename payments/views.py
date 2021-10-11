@@ -41,6 +41,10 @@ def notify_payment_view(request):
 
     try:
       print("Fetching order")
+      print(Order.objects.get(
+        external_id=serializer.validated_data['order']['extOrderId']))
+      print(Order.objects.get(
+        pk=serializer.validated_data['order']['extOrderId']))
       order = Order.objects.get(
         pk=serializer.validated_data['order']['extOrderId'])
       print(order)
