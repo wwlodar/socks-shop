@@ -25,35 +25,29 @@ class StatusSerializer(serializers.ModelSerializer):
 
 @csrf_exempt
 def notify_payment_view(request):
-  print('get_to_view')
-  print(request.method)
-  print(request.body)
-  print(serializers.Serializer(request.body))
   if request.method == 'POST':
     print('POST')
     data = json.loads(request.body)
-    print(data)
     order_id = (data['order']['extOrderId'])
     print("Fetching order")
-    print(Order.objects.get(pk=order_id))
     order = Order.objects.get(pk=order_id)
     print(order)
-    print(order.status)
+    print(order.payment_status)
 
-  if order.status != 'COMPLETED':
-    print("Order.status was not completed yet!")
+  if order.payment_status != 'COMPLETED':
+    print("Order.payment_status was not completed yet!")
     with transaction.atomic():
       if data['order']['status'] == 'COMPLETED':
-        print(f"The concerned order.status {order} is completed: {order.status}")
-        order.status = 'COMPLETED'
+        print(f"The concerned order.payment_status {order} is completed: {order.payment_status}")
+        order.payment_status = 'COMPLETED'
         order.status_date = datetime.date.today()
         order.save()
       elif data['order']['status'] == 'PENDING':
-        print("ZWALIDOWANY order.status JEST PENDING")
+        print("ZWALIDOWANY order.payment_status JEST PENDING")
         pass
       else:
-        print(u"ZWALIDOWANY order.status = {0}".format(data['order']['status']))
-        order.status = 'CANCELED'
+        print(u"ZWALIDOWANY order.payment_status = {0}".format(data['order']['status']))
+        order.payment_status = 'CANCELED'
         order.status_date = datetime.date.today()
         order.save()
   return HttpResponse('')
