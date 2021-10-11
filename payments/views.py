@@ -13,6 +13,8 @@ from django.db import transaction
 from django.urls import reverse
 from datetime import datetime
 from .utils import send_payu_order
+import io
+from rest_framework.parsers import JSONParser
 
 from rest_framework import serializers
 
@@ -26,9 +28,10 @@ def notify_payment_view(request):
   print('get_to_view')
   print(request.method)
   print(request.body)
+  print(serializers.Serializer(request.body))
   if request.method == 'POST':
     print('POST')
-    serializer = serializers.ModelSerializer(
+    serializer = serializers.Serializer(
       data=json.loads(request.body))
 
     if not serializer.is_valid():

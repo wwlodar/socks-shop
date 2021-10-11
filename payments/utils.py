@@ -64,7 +64,7 @@ def send_payu_order(
     "merchantPosId": os.environ['pos_id'],
     "description": 'Order from socks-shop',
     "currencyCode": CURRENCY_CODE,
-    "totalAmount": order.total_price,
+    "totalAmount": order.total_price * 100,
     "extOrderId": str(order.pk),
     "buyer": {
       "email": 'email@google.com',
