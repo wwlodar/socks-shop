@@ -39,7 +39,8 @@ urlpatterns = [
     path('checkout', cart_views.checkout, name='checkout'),
     path('proceed_to_payment', cart_views.proceed_to_payment, name='proceed_to_payment'),
     path('notify', payments_views.notify_payment_view, name='notify_payments'),
-    path('add_email', cart_views.add_email, name='add_email')
+    path('add_email', cart_views.add_email, name='add_email'),
+    path('after_payment', payments_views.after_payment, name='after_payment')
 
 
 ]

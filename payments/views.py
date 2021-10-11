@@ -42,6 +42,7 @@ def notify_payment_view(request):
         order.payment_status = 'COMPLETED'
         order.status_date = datetime.date.today()
         order.save()
+        print(order.payment_status)
       elif data['order']['status'] == 'PENDING':
         print("ZWALIDOWANY order.payment_status JEST PENDING")
         pass

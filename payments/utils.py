@@ -59,7 +59,7 @@ def send_payu_order(
   order = Order.objects.filter(client=client, payment_status='NEW').order_by('-date_of_order')[0]
   payload = json.dumps({
     "notifyUrl": "https://socks-shop.herokuapp.com/notify",
-    "continueUrl": "https://socks-shop.herokuapp.com/",
+    "continueUrl": "https://socks-shop.herokuapp.com/after_payment",
     "customerIp": client_ip,
     "merchantPosId": os.environ['pos_id'],
     "description": 'Order from socks-shop',
