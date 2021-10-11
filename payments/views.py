@@ -33,6 +33,7 @@ def notify_payment_view(request):
     print('POST')
     serializer = serializers.Serializer(
       data=json.loads(request.body))
+    print(serializer)
 
     if not serializer.is_valid():
       print(u"PayU: Unsupported data. {0}".format(
