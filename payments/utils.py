@@ -8,6 +8,7 @@ from clients.functions import *
 from django.conf import settings
 from cart.models import Order
 from django.urls import reverse
+import socket
 
 logger = logging.getLogger(__name__)
 CURRENCY_CODE = "PLN"
@@ -47,9 +48,6 @@ def request_payu_token(
     return None
 
 
-import socket
-
-
 def send_payu_order(
     request,
     url='https://secure.snd.payu.com/api/v2_1/orders', ):
@@ -57,6 +55,10 @@ def send_payu_order(
   client_ip = socket.gethostbyname(socket.gethostname())
   client = get_client(request)
   order = Order.objects.filter(client=client, payment_status='NEW').order_by('-date_of_order')[0]
+  if request.user.is_authenticated:
+    email = request.user.email
+  else:
+    email = request.session.get('email')
   payload = json.dumps({
     "notifyUrl": "https://socks-shop.herokuapp.com/notify",
     "continueUrl": "https://socks-shop.herokuapp.com/after_payment",
@@ -67,7 +69,7 @@ def send_payu_order(
     "totalAmount": order.total_price * 100,
     "extOrderId": str(order.pk),
     "buyer": {
-      "email": 'email@google.com',
+      "email": email,
       "firstName": client.shippingaddress.firstname,
       "lastName": client.shippingaddress.surname
     },

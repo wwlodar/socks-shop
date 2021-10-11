@@ -16,7 +16,10 @@ from django.views.generic import ListView, DetailView
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404, HttpResponse
 import logging
+
 logger = logging.getLogger(__name__)
+
+
 def view_cart(request):
   client = get_client(request)
   cart = Cart.objects.filter(client=client)
@@ -107,7 +110,20 @@ def add_email(request):
   if request.user.is_authenticated:
     return redirect("proceed_to_payment")
   else:
-    form = AddEmailForm()
+    if request.method == 'POST':
+      form = AddEmailForm(request.POST)
+      print(form.errors)
+      if form.is_valid():
+        print('valid')
+        email = form['email'].data
+        if User.objects.filter(email=email).exists():
+          return redirect("login")
+        else:
+          request.session['email'] = email
+          return redirect('proceed_to_payment')
+    else:
+      form = AddEmailForm()
+      print('invalid')
     context = {'form': form}
     template = 'cart/add_email.html'
     return render(request, template, context)
@@ -115,14 +131,6 @@ def add_email(request):
 
 def proceed_to_payment(request):
   client = get_client(request)
-  if not request.user.is_authenticated:
-    email = request.POST['email']
-    password = ""
-    for _ in range(9):
-      password += secrets.choice(string.ascii_lowercase)
-    password += secrets.choice(string.ascii_uppercase)
-    password += secrets.choice(string.digits)
-    User.objects.create(client=client, email=email, password= password, username=email)
   order = Order.objects.create(client=client)
   cart = Cart.objects.get(client=client)
   order.populate_from_cart(cart=cart)

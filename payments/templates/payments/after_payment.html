@@ -1,6 +1,11 @@
 {% extends "store/base.html" %}
 {% block content %}
 <div>
-  Thank you for shopping! Your order id is {{order_id}}
+  Thank you for shopping! Your order id is {{order_id}}.
+  {% if user.is_authenticated %}
+  Please check details in your profile!
+  {% else %}
+  {% endif %}
+
 </div>
 {% endblock content %}

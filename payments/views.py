@@ -3,24 +3,12 @@ from clients.functions import *
 from cart.models import Order
 from .utils import *
 from django.shortcuts import render
-from django.views.generic import ListView, DetailView
-from django.shortcuts import get_object_or_404, redirect
-from django.http import Http404, HttpResponse
-from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import force_text
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.db import transaction
 from django.urls import reverse
 from datetime import datetime
 from .utils import send_payu_order
-import io
-from rest_framework.parsers import JSONParser
-
-from rest_framework import serializers
-
-
-class StatusSerializer(serializers.ModelSerializer):
-  pass
 
 
 @csrf_exempt
@@ -38,10 +26,8 @@ def notify_payment_view(request):
         if data['order']['status'] == 'COMPLETED':
           print(f"The concerned {order} is completed: {order.payment_status}")
           order.payment_status = 'COMPLETED'
-          print(order.payment_status)
           order.status_date = datetime.today()
           order.save()
-          print(order.payment_status)
         elif data['order']['status'] == 'PENDING':
           print(f"{order} JEST PENDING")
           pass
@@ -54,6 +40,7 @@ def notify_payment_view(request):
 
 
 def after_payment(request):
-  print(request)
-  order_id = request.body
+  client = get_client(request)
+  order = Order.objects.filter(client=client).order_by('-date_of_order')[0]
+  order_id = order.pk
   return render(request, 'payments/after_payment.html', {'order_id': order_id})
