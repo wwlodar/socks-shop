@@ -58,7 +58,7 @@ def send_payu_order(
   client = get_client(request)
   order = Order.objects.filter(client=client, payment_status='NEW').order_by('-date_of_order')[0]
   payload = json.dumps({
-    "notifyUrl": "https://socks-shop.herokuapp.com//notify",
+    "notifyUrl": "https://socks-shop.herokuapp.com/notify",
     "continueUrl": "https://socks-shop.herokuapp.com/",
     "customerIp": client_ip,
     "merchantPosId": os.environ['pos_id'],
@@ -83,7 +83,6 @@ def send_payu_order(
   })
   token = str(request_payu_token())
   authorization_bearer = f'Bearer {token}'
-  print(payload)
   headers = {
     "content-type": "application/json",
     "Authorization": authorization_bearer,
@@ -94,7 +93,6 @@ def send_payu_order(
     headers=headers,
     allow_redirects=False
   )
-  print(response.content)
 
   if response.status_code == 302:
 
