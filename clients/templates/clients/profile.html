@@ -1,30 +1,59 @@
 {% extends "store/base.html" %}
 {% block content %}
-    <div class="border-top pt-3">
-        <small class="text-muted">
-          <h3>Hello, <strong>{{ user.username }}</strong>!</h3>
-          <div >Your email: <a class="text-primary">{{ user.email}}</a></div>
-          <div>With us since: <a class="text-danger">{{ date_joined|date:"d-M-Y" }}</a></div>
-          {% if shipping_address %}
-          <div class="row mt-sm-4">
-            <h5><div>Your shipping address: </div></h5>
-            <div class="col-3">
-              <div>First name: </div>
-              <div>Surname: </div>
-              <div>Street: </div>
-              <div>Town: </div>
-              <div class="btn"><a href="{% url 'change_shipping_address' %}?next={{ request.path }}">Change shipping address</a></div>
-            </div>
-            <div class="col-9">
-              <div> {{ shipping_address.firstname }} </div>
-              <div> {{ shipping_address.surname }} </div>
-              <div> {{ shipping_address.street }} </div>
-              <div> {{ shipping_address.town }} </div>
-            </div>
+<div class="border-top pt-3">
+  <div class="row">
+    <div class="col-6">
+      <div class="text-muted">
+        <h3>Hello, <strong>{{ user.username }}</strong>!</h3>
+        <div>Your email: <a class="text-primary">{{ user.email}}</a></div>
+        <div>With us since: <a class="text-danger">{{ date_joined|date:"d-M-Y" }}</a></div>
+        {% if shipping_address %}
+        <div class="row mt-sm-4">
+          <h5>
+            <div>Your shipping address:</div>
+          </h5>
+          <div class="col-3">
+            <div>First name:</div>
+            <div>Surname:</div>
+            <div>Street:</div>
+            <div>Town:</div>
+            <div class="btn"><a href="{% url 'change_shipping_address' %}?next={{ request.path }}">Change shipping
+              address</a></div>
           </div>
-          {% else %}
-            <a class="btn bg-success bg-opacity-50 mt-sm-3" href="{% url 'add_shipping_address' %}?next={{ request.path }}">Add shipping address</a>
-          {% endif %}
-        </small>
+          <div class="col-9">
+            <div> {{ shipping_address.firstname }}</div>
+            <div> {{ shipping_address.surname }}</div>
+            <div> {{ shipping_address.street }}</div>
+            <div> {{ shipping_address.town }}</div>
+          </div>
+        </div>
+        {% else %}
+        <a class="btn bg-success bg-opacity-50 mt-sm-3" href="{% url 'add_shipping_address' %}?next={{ request.path }}">Add
+          shipping address</a>
+        {% endif %}
+      </div>
     </div>
+    <div class="col-6">
+      {% if orders %}
+      <h5>Your orders:</h5>
+      {% for item in orders %}
+      <div class="mt-sm-4">
+        <div>Date of order: {{item.date_of_order}}</div>
+        <div>Total price: {{item.total_price}}</div>
+        <div>Payment status: {{item.payment_status}}</div>
+        <div>Products you bought:</div>
+        {% for product in item.products.all %}
+        <div>
+          <a href="{% url 'product_detail' pk=product.product_in_size.product.pk %}">{{product.product_in_size.product.name}}</a>
+          {{product.product_in_size}}, {{product.quantity}} pairs
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+      {% else %}
+      {% endif %}
+
+    </div>
+  </div>
+</div>
 {% endblock content %}

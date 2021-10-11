@@ -8,6 +8,7 @@ from .models import Client, ShippingAddress
 from django.views.generic.edit import UpdateView
 from django.utils.http import is_safe_url
 from .functions import *
+from cart.models import Order
 
 
 def register(request):
@@ -35,16 +36,22 @@ def register(request):
 def client_profile(request):
   user = User.objects.get(username=request.user.username)
   client, created = Client.objects.get_or_create(user=request.user)
+  orders = Order.objects.filter(client=client)
   shipping_address = ShippingAddress.objects.filter(client=client)
   if shipping_address.exists():
     shipping_address = ShippingAddress.objects.get(client=client)
   else:
     shipping_address = None
+  if orders.exists():
+    orders = Order.objects.filter(client=client).all
+  else:
+    orders = None
   context = {
     'user': user,
     'date_joined': user.date_joined,
     'client': client,
-    'shipping_address': shipping_address
+    'shipping_address': shipping_address,
+    'orders' : orders
   }
   return render(request, 'clients/profile.html', context)
 

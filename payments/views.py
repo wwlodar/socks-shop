@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from clients.functions import *
-from cart.models import Order
+from cart.models import Order, Cart
 from .utils import *
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -41,6 +41,8 @@ def notify_payment_view(request):
 
 def after_payment(request):
   client = get_client(request)
+  cart = Cart.objects.get(client=client)
+  cart.delete()
   order = Order.objects.filter(client=client).order_by('-date_of_order')[0]
   order_id = order.pk
   return render(request, 'payments/after_payment.html', {'order_id': order_id})
