@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
         integrity="" crossorigin="anonymous">
   <link rel="stylesheet" type="text/css" href="{% static 'store/main.css' %}">
-	<script type="text/javascript">
+  <script type="text/javascript">
 		function getCookie(name) {
 		    var cookieValue = null;
 		    if (document.cookie && document.cookie !== '') {
@@ -44,15 +44,20 @@
 
 		document.cookie ='device=' + device + ";domain=;path=/"
 
-	</script>
+
+
+  </script>
   <title>Socks Shop!</title>
 </head>
 <body>
 <div class="row">
-  <nav class="navbar navbar-nav navbar-light bg-secondary bg-opacity-50">
-    <span class="navbar-text">
+  <nav class="navbar navbar-light bg-secondary bg-opacity-50">
+      <div class="col-5">
+      <a>Currency: PLN</a>
+      </div>
+    <div class="col-7">
       <a class="nav-item btn" href="{% url 'home' %}">Free Shipping!</a>
-    </span>
+      </div>
   </nav>
 </div>
 <div class="row">

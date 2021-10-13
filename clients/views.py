@@ -43,7 +43,7 @@ def client_profile(request):
   else:
     shipping_address = None
   if orders.exists():
-    orders = Order.objects.filter(client=client).all
+    orders = Order.objects.filter(client=client).order_by('-date_of_order')[0:3]
   else:
     orders = None
   context = {

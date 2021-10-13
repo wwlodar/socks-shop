@@ -43,7 +43,7 @@
       <td></td>
       <td>
         {% if item.total_price %}
-        Total price: {{ item.total_price }}
+        Total price: {{ item.total_price }} PLN
         {% endif %}
       </td>
     </tr>
@@ -54,8 +54,8 @@
         <td><img src="{{prod.product_in_size.product.image.url}}" height="150"></td>
         <td>{{prod.product_in_size.product.name}}</td>
         <td>{{prod.product_in_size.size_type}}</td>
-        <td>Quantity: {{ prod.quantity }}</td>
-        <td>Price: {{ prod.product_in_size.price }}</td>
+        <td>{{ prod.quantity }}</td>
+        <td>{{ prod.product_in_size.price }} PLN</td>
         <td>
           <form method="post" action="{% url 'delete_from_cart' %}"> {% csrf_token %}
             <div class="row">

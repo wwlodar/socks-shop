@@ -47,8 +47,8 @@ class OrderFactory(factory.django.DjangoModelFactory):
   surname = factory.Faker('last_name')
   date_of_order = factory.fuzzy.FuzzyDate(datetime.date(2021, 1, 1))
   total_price = random.randint(1, 20)
-  paid = False
   client = factory.SubFactory(ClientFactory)
+  payment_status = 'NEW'
 
   @factory.post_generation
   def products(self, create, extracted, **kwargs):
@@ -58,4 +58,4 @@ class OrderFactory(factory.django.DjangoModelFactory):
 
     # Add the iterable of groups using bulk addition
     self.products.add(*extracted)
-    print(*extracted)
+

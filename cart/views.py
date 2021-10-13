@@ -106,7 +106,6 @@ def checkout(request):
 
 
 def add_email(request):
-  client = get_client(request)
   if request.user.is_authenticated:
     return redirect("proceed_to_payment")
   else:
@@ -119,6 +118,7 @@ def add_email(request):
         if User.objects.filter(email=email).exists():
           return redirect("login")
         else:
+
           request.session['email'] = email
           return redirect('proceed_to_payment')
     else:

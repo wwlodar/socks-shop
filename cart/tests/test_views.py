@@ -4,12 +4,16 @@ from django.urls import reverse, resolve
 from .factories import *
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.test import RequestFactory, TestCase, override_settings
-from ..views import view_cart, add_to_cart, delete_from_cart, delete_all_from_cart, checkout
+from ..views import view_cart, add_to_cart, delete_from_cart, delete_all_from_cart, checkout, \
+  add_email, proceed_to_payment
 import shutil
-from clients.tests.factories import ClientFactory, ClientLoggedFactory, ShippingAddressFactory
+from clients.tests.factories import ClientFactory, ClientLoggedFactory, \
+  UserFactory, ShippingAddressFactory
 from store.tests.factories import SizesFactory, ProductFactory
 from django.http import SimpleCookie
-
+from django.contrib.auth.models import User, AnonymousUser
+from django.contrib.sessions.middleware import SessionMiddleware
+import mock
 
 TEST_DIR = 'test_data'
 
@@ -455,3 +459,101 @@ class TestCheckout(TestCase):
     self.assertIn(shipping_address.surname, str(response.content))
 
 
+class TestAddEmail(TestCase):
+
+  def test_logged_user(self):
+    self.factory = RequestFactory()
+    client_logged = ClientLoggedFactory()
+    request = self.factory.get('add_email')
+
+    request.user = client_logged.user
+    response = add_email(request)
+    response.client = Client()
+    response.client.force_login(client_logged.user)
+
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/proceed_to_payment', fetch_redirect_response=False)
+
+  def test_not_logged_user_get(self):
+    self.factory = RequestFactory()
+    client_not_logged = ClientFactory()
+    request = self.factory.get('add_email')
+
+    request.COOKIES['device'] = client_not_logged.device
+    request.user = AnonymousUser()
+    response = add_email(request)
+    response.client = Client()
+    print(response)
+    self.assertEqual(response.status_code, 200)
+
+  def test_not_logged_user_post_already_in_database(self):
+    self.factory = RequestFactory()
+    client_not_logged = ClientLoggedFactory()
+    email = client_not_logged.user.email
+    request = self.factory.post('add_email', {'email': email})
+
+    request.COOKIES['device'] = client_not_logged.device
+    request.user = AnonymousUser()
+    response = add_email(request)
+    response.client = Client()
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/login/')
+
+  def test_not_logged_user_not_in_database(self):
+    self.factory = RequestFactory()
+    client_not_logged = ClientFactory()
+    request = self.factory.post('add_email', {'email': 'test_email@google.com'})
+
+    request.COOKIES['device'] = client_not_logged.device
+    request.user = AnonymousUser()
+    middleware = SessionMiddleware()
+    middleware.process_request(request)
+    request.session.save()
+
+    response = add_email(request)
+    response.client = Client()
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response, '/proceed_to_payment', fetch_redirect_response=False)
+
+
+class TestProceedToPayment(TestCase):
+
+  @mock.patch('cart.views.send_payu_order', return_value=
+  (
+      'https://merch-prod.snd.payu.com/pay/?orderId=JSK5KJMMNS211012GUEST000P01&token=eyJhbGciOiJIUzI1NiJ9.eyJvcmRlcklk'
+      'IjoiSlNLNUtKTU1OUzIxMTAxMkdVRVNUMDAwUDAxIiwicG9zSWQiOiJiM3dBYzBGZCIsImF1dGhvcml0aWVzIjpbIlJPTEVfQ0xJRU5UIl0sInBh'
+      'eWVyRW1haWwiOiJ3ZXJ3bG9kYXJjenlrQHdwLnBsIiwiZXhwIjoxNjM0MTMwMTg2LCJpc3MiOiJQQVlVIiwiYXVkIjoiYXBpLWdhdGV3YXkiLCJ'
+      'zdWIiOiJQYXlVIHN1YmplY3QiLCJqdGkiOiI1NDBhMWZhMi1jMTM3LTRkYjItODAyMC1iN2I3NTY1MmJkZmQifQ.0-XasyFCYoU5RZbhgo7jwoH'
+      '4gyewjrDmaZGjii3IA8E'
+  ))
+  def test_proceed_to_payment_url(self, mock_value):
+    self.factory = RequestFactory()
+    client_not_logged = ClientFactory()
+    cart = CartFactory(client=client_not_logged)
+    shipping_address = ShippingAddressFactory(client=client_not_logged)
+    request = self.factory.get('proceed_to_payment')
+    request.COOKIES['device'] = client_not_logged.device
+
+    response = proceed_to_payment(request)
+    response.client = Client()
+    self.assertEqual(response.status_code, 302)
+    self.assertRedirects(response,
+                         'https://merch-prod.snd.payu.com/pay/?orderId=JSK5KJMMNS211012GUEST000P01&token=eyJhbGciOiJIUz'
+                         'I1NiJ9.eyJvcmRlcklkIjoiSlNLNUtKTU1OUzIxMTAxMkdVRVNUMDAwUDAxIiwicG9zSWQiOiJiM3dBYzBGZCIsImF1dG'
+                         'hvcml0aWVzIjpbIlJPTEVfQ0xJRU5UIl0sInBheWVyRW1haWwiOiJ3ZXJ3bG9kYXJjenlrQHdwLnBsIiwiZXhwIjoxNjM'
+                         '0MTMwMTg2LCJpc3MiOiJQQVlVIiwiYXVkIjoiYXBpLWdhdGV3YXkiLCJzdWIiOiJQYXlVIHN1YmplY3QiLCJqdGkiOiI1'
+                         'NDBhMWZhMi1jMTM3LTRkYjItODAyMC1iN2I3NTY1MmJkZmQifQ.0-XasyFCYoU5RZbhgo7jwoH4gyewjrDmaZGjii3IA8E',
+                         fetch_redirect_response=False)
+
+  @mock.patch('cart.views.send_payu_order', return_value='')
+  def test_proceed_to_payment_Http404(self, mock_value):
+    with self.assertRaises(Exception):
+      self.factory = RequestFactory()
+      client_not_logged = ClientFactory()
+      cart = CartFactory(client=client_not_logged)
+      shipping_address = ShippingAddressFactory(client=client_not_logged)
+      request = self.factory.get('proceed_to_payment')
+      request.COOKIES['device'] = client_not_logged.device
+
+      response = proceed_to_payment(request)
+      response.client = Client()

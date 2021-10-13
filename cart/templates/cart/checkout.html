@@ -15,7 +15,7 @@
       <a>Quantity: {{ prod.quantity }}</a>
     </div>
     {% endfor %}
-    <div class="mt-sm-2">Total price: <strong>{{ item.total_price }}</strong></div>
+    <div class="mt-sm-2">Total price: <strong>{{ item.total_price }} PLN</strong></div>
     {% endfor %}
   </div>
   <div class="col-sm-7">
@@ -38,7 +38,7 @@
       </div>
       <a class="btn bg-success bg-opacity-50 mt-sm-3"
          href="{% url 'change_shipping_address' %}?next={{ request.path }}">Do you need to update your address?</a>
-      <div class="mt-sm-5"><a href="{% url 'add_email' %}">Proceed to payment</a></div>
+      <div class="mt-sm-5 btn"><a href="{% url 'add_email' %}">Pay with <img src="/static/PAYU_LOGO_BLACK.png" height="40"></a></div>
       {% else %}
       <a class="btn bg-success bg-opacity-50 mt-sm-3" href="{% url 'add_shipping_address' %}?next={{ request.path }}">Add
         shipping address</a>

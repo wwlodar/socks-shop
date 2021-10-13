@@ -86,14 +86,15 @@ class TestCart(TestCase):
   def test_get_cart_by_client(self):
     client = ClientFactory()
     cart = CartFactory.create(client=client)
-    print(Cart.get_cart_by_client(client))
+    new_cart = Cart.get_cart_by_client(client)
+    self.assertEqual(str(new_cart), str(Cart.objects.filter(client=client)))
 
   @override_settings(MEDIA_ROOT=(TEST_DIR + '/media'))
   def test_get_product_from_cart(self):
     client = ClientFactory()
     product = OrderedProductFactory()
     cart = CartFactory.create(client=client, products=(product,))
-    print(Cart.get_product_from_cart(client, size_chosen=product.product_in_size))
+    self.assertIn(product, Cart.get_product_from_cart(client, size_chosen=product.product_in_size))
 
 
 class TestOrder(TestCase):
@@ -119,8 +120,9 @@ class TestOrder(TestCase):
     assert order.products != ""
     assert order.date_of_order != ""
     assert order.total_price != ""
-    assert order.paid != ""
+    assert order.payment_status != ""
     assert order.client != ""
+    assert order.status_date is None
 
     self.assertEqual(Order.objects.count(), 1)
     self.assertEqual(Client.objects.count(), 1)
@@ -190,3 +192,8 @@ class TestOrder(TestCase):
     order = OrderFactory(total_price=total_price)
 
     self.assertEqual(order.total_price, total_price)
+
+  def test_payment_status(self):
+    order = OrderFactory()
+
+    self.assertEqual(order.payment_status, 'NEW')

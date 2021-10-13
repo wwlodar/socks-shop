@@ -35,7 +35,7 @@
     </div>
     <div class="col-6">
       {% if orders %}
-      <h5>Your orders:</h5>
+      <h5>Your last 3 orders:</h5>
       {% for item in orders %}
       <div class="mt-sm-4">
         <div>Date of order: {{item.date_of_order}}</div>
@@ -47,12 +47,11 @@
           <a href="{% url 'product_detail' pk=product.product_in_size.product.pk %}">{{product.product_in_size.product.name}}</a>
           {{product.product_in_size}}, {{product.quantity}} pairs
         </div>
+        {% endfor %}
+        {% endfor %}
+        {% else %}
+        {% endif %}
       </div>
-      {% endfor %}
-      {% endfor %}
-      {% else %}
-      {% endif %}
-
     </div>
   </div>
 </div>

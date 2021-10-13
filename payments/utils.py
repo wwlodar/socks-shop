@@ -2,12 +2,8 @@ import os
 import requests
 import logging
 import json
-from clients.models import *
-from requests import Request, Session
 from clients.functions import *
-from django.conf import settings
 from cart.models import Order
-from django.urls import reverse
 import socket
 
 logger = logging.getLogger(__name__)
@@ -19,14 +15,6 @@ def request_payu_token(
     client_id=os.environ['client_id'],
     client_secret=os.environ['client_secret']
 ):
-  """
-  Returns PayU Token needed to start the transaction
-  :param url: URl to payU API
-  :param client_id: taken from settings
-  :param client_secret: taken from settings
-  :return: Token or None if not possible
-  """
-  logger.info('Requesting PayU TOKEN!')
   values = {
     'grant_type': 'client_credentials',
     'client_id': client_id,
@@ -34,7 +22,6 @@ def request_payu_token(
   }
 
   response = requests.post(url, values)
-  logger.info(f'The response is: {response} {response.status_code} {response.content}')
 
   if response.status_code == 200:
     logger.info(f'replied with {response.status_code}')
@@ -44,7 +31,7 @@ def request_payu_token(
       return None
     return data.get('access_token')
   else:
-    logger.debug(f'Response status_code == {response.status_code}')
+    print(f'Response status_code == {response.status_code}')
     return None
 
 
@@ -59,6 +46,12 @@ def send_payu_order(
     email = request.user.email
   else:
     email = request.session.get('email')
+
+  products = []
+  for product in order.products.all():
+    products.append({"name": product.product_in_size.product.name,
+                     "unitPrice": product.get_total_item_price(),
+                     "quantity": product.quantity})
   payload = json.dumps({
     "notifyUrl": "https://socks-shop.herokuapp.com/notify",
     "continueUrl": "https://socks-shop.herokuapp.com/after_payment",
@@ -73,14 +66,7 @@ def send_payu_order(
       "firstName": client.shippingaddress.firstname,
       "lastName": client.shippingaddress.surname
     },
-    "products": [
-      {
-        "name": 'order.product.name',
-        "unitPrice": '10',
-        "quantity": "1"
-      }
-
-    ],
+    "products": products
 
   })
   token = str(request_payu_token())
@@ -89,12 +75,14 @@ def send_payu_order(
     "content-type": "application/json",
     "Authorization": authorization_bearer,
   }
+
   response = requests.post(
     url=url,
     data=payload,
     headers=headers,
     allow_redirects=False
   )
+
   if response.status_code == 302:
 
     try:
