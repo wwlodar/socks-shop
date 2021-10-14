@@ -434,7 +434,7 @@ class TestCheckout(TestCase):
 
     self.assertEqual(response.status_code, 200)
     self.assertEqual(Cart.objects.count(), 1)
-    self.assertIn('Add shipping address', str(response.content))
+    self.assertIn('Add\\n        shipping address', str(response.content))
 
   def test_cart_with_shipping(self):
     self.factory = RequestFactory()

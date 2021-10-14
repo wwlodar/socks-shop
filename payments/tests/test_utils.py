@@ -1,20 +1,9 @@
-import os
-import logging
-import json
-from clients.functions import *
-from cart.models import Order
-import socket
 from django.test import TestCase, RequestFactory
 from ..utils import *
 import mock
 from cart.tests.factories import OrderFactory, OrderedProductFactory
 from clients.tests.factories import *
-# import requests
-import unittest
-import httpretty
-import responses
-from responses import matchers
-from unittest.mock import Mock
+
 from mock import patch
 from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.sessions.middleware import SessionMiddleware

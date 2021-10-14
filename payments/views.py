@@ -14,10 +14,8 @@ from .utils import send_payu_order
 @csrf_exempt
 def notify_payment_view(request):
   if request.method == 'POST':
-    print('POST')
     data = json.loads(request.body)
     order_id = (data['order']['extOrderId'])
-    print("Fetching order")
     order = Order.objects.get(pk=order_id)
 
     if order.payment_status != 'COMPLETED':
@@ -29,7 +27,7 @@ def notify_payment_view(request):
           order.status_date = datetime.today()
           order.save()
         elif data['order']['status'] == 'PENDING':
-          print(f"{order} JEST PENDING")
+          print(f"{order} is PENDING")
           pass
         else:
           print(u"order.payment_status = {0}".format(data['order']['status']))
