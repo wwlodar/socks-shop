@@ -1,9 +1,8 @@
-from django.test import RequestFactory, TestCase
-from django.conf import settings
+from django.test import TestCase
 from .factories import *
 from django.test import override_settings
 import shutil
-from ..models import Sizes, Product
+from ..models import Sizes
 
 TEST_DIR = 'test_data'
 

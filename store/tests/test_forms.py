@@ -2,8 +2,7 @@ from ..forms import AddSizeForm
 from .factories import *
 from django.test import override_settings
 import shutil
-from ..models import Sizes
-from django.test import RequestFactory, TestCase
+from django.test import TestCase
 
 TEST_DIR = 'test_data'
 

@@ -1,6 +1,4 @@
 from django.test import TestCase
-from django.conf import settings
-import factory
 from .factories import ClientFactory, ShippingAddressFactory, UserFactory, ClientLoggedFactory
 from ..models import *
 
