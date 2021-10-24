@@ -17,6 +17,9 @@ jobs:
       - run:
           name: Run django tests
           command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements/dev.txt
             pipenv run python manage.py test
       - store_test_results:
           path: test-results
