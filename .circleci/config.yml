@@ -16,15 +16,16 @@ jobs:
       - run:
           name: Setup virtualenv
           command: |
-           virtualenv env
+           virtualenv venv
       - run:
           name: Install requirements
           command: |
-            source env/bin/activate
+            source venv/bin/activate
             pip install -r requirements.txt
       - run:
           name: Run django tests
           command: |
+            . venv/bin/activate
              python manage.py test
       - store_test_results:
           path: test-results
