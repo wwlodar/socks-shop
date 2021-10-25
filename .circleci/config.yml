@@ -13,7 +13,12 @@ jobs:
           POSTGRES_DB: circle_test
     steps:
       - checkout
-      - python/install-packages
+      - run:
+          name: Install requirements
+          command: |
+            virtualenv env
+            source env/bin/activate
+            pip install -r requirements.txt
       - run:
           name: Run django tests
           command: |
