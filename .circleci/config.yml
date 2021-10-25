@@ -26,6 +26,7 @@ jobs:
           name: Run django tests
           command: |
             . venv/bin/activate
+             python manage.py collectstatic
              python manage.py test
       - store_test_results:
           path: test-results
