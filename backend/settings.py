@@ -23,9 +23,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-sp1oy6n=(gek=@$#h2n)r7cb-=ueyo$onv+cy@io-h7*9y-8qn'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
 
-ALLOWED_HOSTS = [".herokuapp.com","localhost", "127.0.0.1", "https://bank-simulator-merch-prod.snd.payu.com/"]
+
+if 'DEBUG_MODE' in os.environ:
+  DEBUG = os.environ['DEBUG_MODE']
+else:
+  DEBUG = True
+
+ALLOWED_HOSTS = [".herokuapp.com", "localhost", "127.0.0.1", "https://bank-simulator-merch-prod.snd.payu.com/"]
 
 # Application definition
 
@@ -37,19 +42,18 @@ INSTALLED_APPS = [
   'payments.apps.PaymentsConfig',
   'crispy_forms',
   'django.contrib.admin',
+  'django.contrib.staticfiles',
   'django.contrib.auth',
   'django.contrib.contenttypes',
   'django.contrib.sessions',
   'django.contrib.messages',
   'cloudinary_storage',
-  'django.contrib.staticfiles',
-  'whitenoise.runserver_nostatic',
+
   'cloudinary',
 ]
 
 MIDDLEWARE = [
   'django.middleware.security.SecurityMiddleware',
-  'whitenoise.middleware.WhiteNoiseMiddleware',
   'django.contrib.sessions.middleware.SessionMiddleware',
   'django.middleware.common.CommonMiddleware',
   'django.middleware.csrf.CsrfViewMiddleware',
@@ -130,9 +134,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-WHITENOISE_STATIC_PREFIX = "/static/"
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
@@ -146,8 +148,8 @@ LOGIN_URL = 'login'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
-# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-django_heroku.settings(locals())
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 
 CLOUDINARY_STORAGE = {
   'CLOUD_NAME': os.environ['YOUR_CLOUD_NAME'],
