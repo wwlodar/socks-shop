@@ -2,7 +2,6 @@ from django.db import models
 from PIL import Image
 
 
-
 class HomepagePromotional(models.Model):
   text = models.CharField(max_length=100)
   image = models.ImageField(upload_to='promotional_pictures')
