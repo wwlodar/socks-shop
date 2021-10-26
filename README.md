@@ -14,7 +14,7 @@ They can be obtained by registering an account via Sandbox (https://registration
 or you can also use example Configuration Keys provided by Sandbox. 
 ![img.png](img.png)
 
-###Installation
+### Installation
 
 First clone the repository from Github and switch to the new directory:
 ```
